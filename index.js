@@ -76,10 +76,16 @@ var manifest = {
 
         {
             plugin: {
-                register: "./plugins/main/main.js",
+                register: "./plugins/measurements/measurements.js",
                 options: {}
             }
+        },
 
+        {
+            plugin: {
+                register: "./plugins/api-forecast/api-forecast.js",
+                options: {}
+            }
         }
     ]
 

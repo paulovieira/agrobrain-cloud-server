@@ -1,0 +1,176 @@
+
+<html>
+
+<head>
+    <style>
+    html {
+        background: url(/measurements/public/lecas/i/spinon.jpg) no-repeat center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+    }
+    </style>
+    <link rel="stylesheet" href="/measurements/public/lecas/css/css/font-awesome.min.css">
+    <style>
+    #panel {
+        padding: 5px;
+        margin-left: 30px;
+        padding: 10px;
+        color: #fff;
+    }
+    
+    .flip {
+        padding-left: 30px;
+        padding-bottom: 10;
+        color: #FFF;
+        cursor: pointer;
+        cursor: hand;
+    }
+    
+    #panel {}
+    </style>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+    google.charts.load('current', {
+        'packages': ['gauge']
+    });
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+
+        var dataT = window.dataT = google.visualization.arrayToDataTable([
+            ['Label', 'Value'],
+            ['Temperature', 20],
+        ]);
+
+        var dataH = window.dataH = google.visualization.arrayToDataTable([
+            ['Label', 'Value'],
+            ['Moisture', 200],
+        ]);
+
+        var dataT5 = window.dataT5 = google.visualization.arrayToDataTable([
+            ['Label', 'Value'],
+            ['Huzzah 5', 20],
+        ]);
+
+        var dataT6 = window.dataT6 = google.visualization.arrayToDataTable([
+            ['Label', 'Value'],
+            ['Huzzah 6', 20],
+        ]);
+        
+        var dataT9 = window.dataT9 = google.visualization.arrayToDataTable([
+            ['Label', 'Value'],
+            ['Huzzah 9', 20],
+        ]);
+
+
+        var optionsT = window.optionsT = {
+            max: 50,
+            min: -10,
+            width: 300,
+            height: 300,
+            redFrom: 35,
+            redTo: 50,
+            yellowFrom: 25,
+            yellowTo: 35,
+            minorTicks: 5
+        };
+
+        var optionsTHuzzah = window.optionsT5 = window.optionsT6 = window.optionsT9 = {
+            max: 50,
+            min: -10,
+            width: 150,
+            height: 150,
+            redFrom: 35,
+            redTo: 50,
+            yellowFrom: 25,
+            yellowTo: 35,
+            minorTicks: 5
+        };
+
+/*
+        var optionsT6 = window.optionsT6 = {
+            max: 50,
+            min: -10,
+            width: 150,
+            height: 150,
+            redFrom: 35,
+            redTo: 50,
+            yellowFrom: 25,
+            yellowTo: 35,
+            minorTicks: 5
+        };
+*/
+        var optionsH = window.optionsH = {
+            max: 1000,
+            min: 0,
+            width: 300,
+            height: 300,
+            redFrom: 0,
+            redTo: 300,
+            yellowFrom: 300,
+            yellowTo: 700,
+            minorTicks: 5
+        };
+
+
+        var chartT = window.chartT = new google.visualization.Gauge(document.getElementById('chart_divT'));
+        chartT.draw(dataT, optionsT);
+
+        var chartH = window.chartH = new google.visualization.Gauge(document.getElementById('chart_divH'));
+        chartH.draw(dataH, optionsH);
+
+        var chartT5 = window.chartT5 = new google.visualization.Gauge(document.getElementById('chart_divT5'));
+        chartT5.draw(dataT5, optionsTHuzzah);
+
+        var chartT6 = window.chartT6 = new google.visualization.Gauge(document.getElementById('chart_divT6'));
+        chartT6.draw(dataT6, optionsTHuzzah);
+
+        var chartT9 = window.chartT9 = new google.visualization.Gauge(document.getElementById('chart_divT9'));
+        chartT9.draw(dataT9, optionsTHuzzah);
+
+        // setInterval(function() {
+        //     //debugger;
+        //     dataT.setValue(0, 1, 40 + Math.round(60 * Math.random()));
+        //     chartT.draw(dataT, optionsT);
+        // }, 1300);
+        // setInterval(function() {
+        //     //debugger;
+        //     dataH.setValue(0, 1, 40 + Math.round(60 * Math.random()));
+        //     chartH.draw(dataH, optionsH);
+        // }, 1000);
+    }
+    </script>
+</head>
+
+<body>
+    <div xstyle="display:block; float:left;">
+        <div style="position:relative; display:block; float:left;" id="chart_divT" style="width: 400px; height: 120px;"></div>
+        <div style="position:relative; display:block; float:left;" id="chart_divH" style="width: 400px; height: 120px;"></div>
+        <div id="panel" style="clear:left;">
+            <div class="flip" id="automatic" style="position:relative; float:left;"><i class="fa fa-cogs fa-4x"></i></br>Automatic </div>
+
+            <div class="flip" id="manual" style="position:relative; float:left;"><i class="fa fa-power-off fa-4x"></i></br>Manual </div>
+
+            <div class="flip" id="forecast-sunny" style="position:relative; float:left; margin-left:100px;"><i class="fa fa-sun-o fa-4x"></i></br>Forecast - sunny</div>
+
+            <div class="flip" id="forecast-rainny" style="position:relative; float:left;"><i class="fa fa-cloud fa-4x"></i></br>Forecast - rainny</div>
+        </div>
+    </div>
+
+    <div style="margin-top: 100px;">
+        <div style="position:relative; display:block; float:left; margin-right: 30px;" id="chart_divT5" style="width: 200px; height: 60px;"></div>
+        <div style="position:relative; display:block; float:left; margin-right: 30px;" id="chart_divT6" style="width: 400px; height: 120px;"></div>
+        <div style="position:relative; display:block; float:left; margin-right: 30px;" id="chart_divT9" style="width: 400px; height: 120px;"></div>
+
+    </div>
+
+    <div style="position: absolute;  bottom: 15px; color: white; left: 15px; ">Last updated at <span id="ts"><span></div>
+    <script src="/measurements/app/app.js"></script>
+    <script>
+    console.log(new Date())
+    </script>
+</body>
+
+</html>
