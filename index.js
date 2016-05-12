@@ -1,10 +1,14 @@
-var Hoek = require("hoek");
-var Glue = require("glue");
+process.title = "spinon";
 
+require('./config/load');
+var Glue = require("glue");
+var Hoek = require("hoek");
+var Bluebird = require("bluebird");
 
 var manifest = {
 
     server: {
+
         //  default connections configuration
         connections: {
 
@@ -100,6 +104,8 @@ var options = {
 Glue.compose(manifest, options, function (err, server) {
 
     Hoek.assert(!err, 'Failed registration of one or more plugins: ' + err);
+
+    server.app.meteoCache = Bluebird.promisifyAll(server.cache({ segment: 'meteo', expiresIn: 10*1000 }), {multiArgs: true});
 
     // start the server and finish the initialization process
     server.start(function(err) {

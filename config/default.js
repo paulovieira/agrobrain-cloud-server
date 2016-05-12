@@ -10,6 +10,7 @@ module.exports = {
     host: "localhost",
     port: 6010,
     rootDir: internals.rootDir,
+    phantomCommand: ""
 
 /*
     publicUri: "localhost",  // host
