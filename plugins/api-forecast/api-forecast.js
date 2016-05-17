@@ -20,6 +20,7 @@ var execAsync = Promise.promisify(require("child_process").exec, {multiArgs: tru
 var internals = {};
 
 internals.cacheInterval = 5*60*1000;  // 5 minutes
+//internals.cacheInterval = 10*1000;  // 10 seconds
 internals.phantomScript = Path.join(__dirname, "phantom.js");  
 
 
@@ -38,22 +39,21 @@ exports.register = function(server, options, next){
                 var meteoCache = server.app.meteoCache;
 
                 var now = Date.now();
-                var key = Math.floor(now/internals.cacheInterval)*internals.cacheInterval + "";
+                //var key = Math.floor(now/internals.cacheInterval)*internals.cacheInterval + "";
+
+                // the cache key is the geographical location of the forecast
+                var key = "lisbon";
 
                 var forecast = {};
 
-                var p1 = Promise.resolve();
-                
-                p1 = p1.then(function(){
+                var p0a = Promise.resolve();
+
+                var p1a = p0a.then(function(){
 
                     return meteoCache.getAsync(key);
                 });
-
-                p1 = p1.then(function(args){
-
-                    var value      = args[0];
-                    var cachedData = args[1] ;
-                    var report     = args[2];
+                
+                var p2a = p1a.spread(function(value, cachedData, report){
 
                     if(cachedData){
 
@@ -66,20 +66,21 @@ exports.register = function(server, options, next){
                     // create a second promise chain to handle the fetch and processing of new forecast data 
                     // (including a dedicated catch handler, as the catch handler for p1 will not be executed for any errors coming from p2)
 
-                    var p2 = Promise.resolve();
 
-                    p2 = p2.then(function(){
+                    var p0b = Promise.resolve();
+
+                    var p1b = p0b.then(function(){
 
                         var command = Config.get("phantomCommand") + " " + internals.phantomScript;
                         return execAsync(command);
                     });
 
-                    p2 = p2.then(function(data){
+                    var p2b = p1b.then(function(data){
 
                         return JSON.parse(data[0]);
                     });
 
-                    p2 = p2.then(function(obj){
+                    var p3b = p2b.then(function(obj){
 
                         forecast = {};
                         var meteoKeys = {
@@ -100,7 +101,8 @@ exports.register = function(server, options, next){
                             });                        
                         }
 
-                        key = Math.floor(now/internals.cacheInterval)*internals.cacheInterval + "";
+                        //key = Math.floor(now/internals.cacheInterval)*internals.cacheInterval + "";
+                        key = "lisbon";
 
                         // override the default ttl (configured when the catbox policy was created)
                         var ttl = internals.cacheInterval;
@@ -108,23 +110,23 @@ exports.register = function(server, options, next){
                         return meteoCache.setAsync(key, forecast, ttl);
                     });
 
-                    p2 = p2.then(function(){
+                    var p4b = p3b.then(function(){
 
                         // all is well - the new data has been inserted in the cache successfully
                         return reply(forecast);
                     });
 
-                    p2 = p2.catch(function(err){
+                    p4b.catch(function(err){
 
-                        // handle errors specific to the p2 chain
+                        // handle errors specific to the b chain
                         return reply(Boom.badImplementation(err));
                     });
 
                 });
 
-                p1 = p1.catch(function(err){
+                p2a.catch(function(err){
 
-                    // handle errors specific to the p1 chain
+                    // handle errors specific to the a chain
                     return reply(Boom.badImplementation(err));
                 });
                
