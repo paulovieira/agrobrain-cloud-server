@@ -14,6 +14,7 @@ var Glob = require("glob");
 //var Utils = require("../../server/utils/utils");
 //var Cp = require("child_process");
 var Config = require('nconf');
+var JsonMarkup = require('json-markup');
 
 //var Promise = require('bluebird');
 //var CsvStringify = Promise.promisify(require("csv-stringify"));
@@ -29,6 +30,45 @@ internals.cacheInterval = 5*60*1000;  // 5 minutes
 internals.phantomScript = Path.join(__dirname, "phantom.js");  
 
 internals.db = new Datastore({ filename: Path.join(Config.get("rootDir"), "database", 'readings-test.json'), autoload: true });
+internals.getJsonHtml = function(content){
+
+    var s = `
+<html>
+    <head>
+    <style>
+
+.json-markup {
+    line-height: 17px;
+    font-size: 13px;
+    font-family: monospace;
+    white-space: pre;
+}
+.json-markup-key {
+    font-weight: bold;
+}
+.json-markup-bool {
+    color: firebrick;
+}
+.json-markup-string {
+    color: green;
+}
+.json-markup-null {
+    color: gray;
+}
+.json-markup-number {
+    color: blue;
+}
+
+    </style>
+    </head>
+    <body>
+    ${ content }
+    </body>
+</html>
+`;
+
+    return s;
+}
 
 
 
@@ -108,10 +148,14 @@ exports.register = function(server, options, next){
                                 id: doc.id
                             }
                         });
-                        
+
                         if(request.query.format==="json"){
-                            return reply(docs)  
-                        }
+
+                            var html = internals.getJsonHtml(JsonMarkup(docs));
+                            console.log(html);
+
+                            return reply(html)
+                         }
                         else if(request.query.format==="csv"){
 
                             CsvStringify(docs, {header: true}, function(err, csv){
