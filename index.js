@@ -85,12 +85,20 @@ var manifest = {
             }
         },
 
+
         {
             plugin: {
                 register: "./plugins/api-forecast/api-forecast.js",
                 options: {}
             }
-        }
+        },
+
+        {
+            plugin: {
+                register: "./plugins/api-readings/api-readings.js",
+                options: {}
+            }
+        }        
     ]
 
 

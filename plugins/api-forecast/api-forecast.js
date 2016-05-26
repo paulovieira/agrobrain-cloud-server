@@ -1,6 +1,6 @@
 //var Fs = require("fs");
 var Path = require("path");
-var Config = require("config");
+var Config = require("nconf");
 //var Hoek = require("hoek");
 //var Joi = require("joi");
 //var JSON5 = require("json5");
@@ -12,7 +12,7 @@ var Boom = require("boom");
 var Glob = require("glob");
 //var Utils = require("../../server/utils/utils");
 //var Cp = require("child_process");
-var Config = require('nconf');
+
 
 var Promise = require("bluebird");
 var execAsync = Promise.promisify(require("child_process").exec, {multiArgs: true})
