@@ -25,6 +25,9 @@ var execAsync = Promise.promisify(require("child_process").exec, {multiArgs: tru
 
 var internals = {};
 
+internals['oneHour'] = 60*60*1000;
+internals['oneDay'] = 24*60*60*1000;
+
 internals.cacheInterval = 5*60*1000;  // 5 minutes
 //internals.cacheInterval = 10*1000;  // 10 seconds
 internals.phantomScript = Path.join(__dirname, "phantom.js");  
@@ -34,8 +37,8 @@ internals.getJsonHtml = function(content){
 
     var s = `
 <html>
-    <head>
-    <style>
+<head>
+<style>
 
 .json-markup {
     line-height: 17px;
@@ -59,11 +62,13 @@ internals.getJsonHtml = function(content){
     color: blue;
 }
 
-    </style>
-    </head>
-    <body>
+</style>
+</head>
+<body>
+
     ${ content }
-    </body>
+
+</body>
 </html>
 `;
 
@@ -131,28 +136,49 @@ exports.register = function(server, options, next){
         config: {
             handler: function(request, reply) {
 
+                var queryConditions = {};
+                var age = request.query.age;
+                console.log(age)
+
+                // ...?age=2d
+                var agePeriod = age.substr(-1);                    
+                if((agePeriod==='d' || agePeriod==='h') && age.length >= 2){
+                    var ageValue = age.substring(0, age.length-1);
+
+                    var timeLength;
+                    if(agePeriod==='h'){
+                        timeLength = Number(ageValue)*internals['oneHour']
+                    }
+                    else{
+                        timeLength = Number(ageValue)*internals['oneDay']
+                    }
+
+                    var d = new Date(Date.now() - timeLength);
+                    queryConditions['ts'] = { $gt: d.getTime() };
+                }
+
                 internals.db
-                    .find()
+                    .find(queryConditions, {_id: 0, ts: 0})
                     .sort({ 
                         "ts": request.query.sort==="asc" ? 1 : -1 
                     })
                     .exec(function (err, docs) {
                         
-                        docs = docs.map(function(doc){
-                            return {
-                                time: doc.time,
-                                h1: doc.h1,
-                                h2: doc.h2,
-                                t1: doc.t1,
-                                t2: doc.t2,
-                                id: doc.id
-                            }
-                        });
+                        // docs = docs.map(function(doc){
+                        //     return {
+                        //         time: doc.time,
+                        //         h1: doc.h1,
+                        //         h2: doc.h2,
+                        //         t1: doc.t1,
+                        //         t2: doc.t2,
+                        //         id: doc.id
+                        //     }
+                        // });
 
                         if(request.query.format==="json"){
 
                             var html = internals.getJsonHtml(JsonMarkup(docs));
-                            console.log(html);
+                            //console.log(html);
 
                             return reply(html)
                          }
@@ -175,6 +201,7 @@ exports.register = function(server, options, next){
                     "order-by": Joi.any().valid("ts").default("ts"),
                     "sort": Joi.any().valid("asc", "desc").default("asc"),
                     "format": Joi.any().valid("csv", "json").default("json"),
+                    "age": Joi.any()
 
                 }
             }
