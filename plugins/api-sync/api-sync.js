@@ -32,7 +32,8 @@ internals.cacheInterval = 5*60*1000;  // 5 minutes
 //internals.cacheInterval = 10*1000;  // 10 seconds
 internals.phantomScript = Path.join(__dirname, "phantom.js");  
 
-internals.db = new Datastore({ filename: Path.join(Config.get("rootDir"), "database", 'readings-test.json'), autoload: true });
+internals.db = new Datastore({ filename: Path.join(Config.get("rootDir"), "database", 'readings-new.json'), autoload: true });
+
 internals.getJsonHtml = function(content){
 
     var s = `
@@ -79,14 +80,13 @@ internals.getJsonHtml = function(content){
 
 exports.register = function(server, options, next){
 
-  
 
     server.route({
-        path: "/api/readings",
-        method: "GET",
+        path: "/api/v1/sync",
+        method: "PUT",
         config: {
             handler: function(request, reply) {
-
+    /*
                 request.query.id = request.query.id || null;
                 request.query.t1 = request.query.t1 || null;
                 request.query.t2 = request.query.t2 || null;
@@ -102,28 +102,36 @@ exports.register = function(server, options, next){
                     h1: request.query.h1,
                     h2: request.query.h2,
                 };
+*/
 
-                internals.db.insert(doc, function (err, newDoc) {
+                console.log('clientToken: ', request.query.clientToken)
+                console.log('payload: ', request.payload)
+
+                internals.db.insert(request.payload, function (err, newDoc) {
 
                     if(err){
                         return reply(Boom.badImplementation(err));
                     }
 
-                    return reply(newDoc);
+                    //return reply(newDoc);
+                    return reply({
+                        ts: new Date().toISOString(),
+                        syncRecords: newDoc.length
+                    });
                 });
-               
                
             },
 
             validate: {
                 query: {
-                    id: Joi.string(),
-                    t1: Joi.number(),
-                    t2: Joi.number(),
-                    h1: Joi.number(),
-                    h2: Joi.number(),
-
+                    clientToken: Joi.string().required()
                 }
+            },
+
+            payload: {
+                output: 'data', // the incoming payload is read fully into memory
+                parse: true,
+                timeout: false
             }
 
         }
@@ -131,7 +139,7 @@ exports.register = function(server, options, next){
 
 
     server.route({
-        path: "/show-readings",
+        path: "/show-readings-new",
         method: "GET",
         config: {
             handler: function(request, reply) {
@@ -153,12 +161,12 @@ exports.register = function(server, options, next){
                         timeLength = Number(ageValue)*internals['oneDay']
                     }
 
-                    var d = new Date(Date.now() - timeLength);
-                    queryConditions['ts'] = { $gt: d.getTime() };
+                    //var d = new Date(Date.now() - timeLength);
+                    //queryConditions['ts'] = { $gt: d.getTime() };
                 }
 
                 internals.db
-                    .find(queryConditions, {_id: 0, ts: 0})
+                    .find(queryConditions, {_id: 0})
                     .sort({ 
                         "ts": request.query.sort==="asc" ? 1 : -1 
                     })
@@ -209,7 +217,6 @@ exports.register = function(server, options, next){
         }
     });
 
-    server.expose('nedb', internals.db);
 
     return next();
 };

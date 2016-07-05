@@ -98,6 +98,13 @@ var manifest = {
                 register: "./plugins/api-readings/api-readings.js",
                 options: {}
             }
+        },
+
+        {
+            plugin: {
+                register: "./plugins/api-sync/api-sync.js",
+                options: {}
+            }
         }        
     ]
 

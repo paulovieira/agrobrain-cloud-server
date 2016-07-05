@@ -18,4 +18,4 @@ client/**/_build/**/*
 config/dev.js
 config/dev-email.js
 config/production.js
-database/readings-test.json
+database/readings-*.json
