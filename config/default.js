@@ -1,16 +1,33 @@
-var Path = require("path");
-//var Fs = require("fs");
+var Path = require('path');
 
-var internals = {};
-
-internals.rootDir  = Path.join(__dirname, "..");
+var internals = {
+    rootDir: Path.join(__dirname, '..')
+};
 
 module.exports = {
 
-    host: "localhost",
+    applicationTitle: 'agrobrain-cloud-server',
+
+    host: 'localhost',
     port: 6010,
+
+    publicUri: '',  // host
+    publicPort: 80,  // probably 80
+    publicIp: '',
+
     rootDir: internals.rootDir,
-    phantomCommand: ""
+    phantomCommand: Path.join(process.env['HOME'], '/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'),
+
+    db: {
+
+        postgres: {
+            host: 'localhost',
+            port: 5432,
+            database: '',
+            username: '',
+            password: '',
+        },
+    },
 
 /*
     publicUri: "localhost",  // host
@@ -50,22 +67,24 @@ module.exports = {
             }
         },
     },
+*/
 
     hapi: {
 
-        ironPassword: "",
+        ironPassword: '',
 
 
         // documentation: https://github.com/hapijs/joi#validatevalue-schema-options-callback
         joi: {
+/*
             abortEarly: true,  // returns all the errors found (does not stop on the first error)
             stripUnknown: true,  // delete unknown keys; this means that when the handler executes, only the keys that are explicitely stated
             // in the schema will be present in request.payload and request.query 
             convert: true
-
+*/
         },
     },
-
+/*
     apiPrefix: {
         v1: "/api/v1"
     },
