@@ -1,15 +1,17 @@
+'use strict';
+
 require('./config/load');
 
-var Config = require('nconf');
-var Glue = require("glue");
-var Hoek = require("hoek");
-var Chalk = require('chalk');
-var Bluebird = require("bluebird");
-var Db = require('./database');
+const Config = require('nconf');
+const Glue = require('glue');
+const Hoek = require('hoek');
+const Chalk = require('chalk');
+const Bluebird = require('bluebird');
+const Db = require('./database');
 
 process.title = Config.get('applicationTitle');
 
-var manifest = {
+const manifest = {
 
     server: {
 
@@ -26,7 +28,7 @@ var manifest = {
             routes: {
                 state: {
                     // determines how to handle cookie parsing errors ("ignore" = take no action)
-                    failAction: "ignore"
+                    failAction: 'ignore'
                 },
 
                 // disable node socket timeouts (useful for debugging)
@@ -35,17 +37,17 @@ var manifest = {
                     socket: false
                 }
             }
-        },
-
+        }
     },
 
     connections: [
         {
-            //host: "localhost",
+            //host: 'localhost',
             address: '127.0.0.1',
             port: 8000
         }
     ],
+
 
     registrations: [
 
@@ -59,7 +61,7 @@ var manifest = {
 
         {
             plugin: {
-                register: "nes",
+                register: 'nes',
                 options: {}
             },
             options: {}
@@ -67,7 +69,7 @@ var manifest = {
 
         {
             plugin: {
-                register: "inert",
+                register: 'inert',
                 options: {}
             },
             options: {}
@@ -75,7 +77,7 @@ var manifest = {
 
         {
             plugin: {
-                register: "vision",
+                register: 'vision',
                 options: {}
             },
             options: {}
@@ -99,7 +101,7 @@ var manifest = {
 
         {
             plugin: {
-                register: "./plugins/measurements/measurements.js",
+                register: './plugins/measurements/measurements.js',
                 options: {}
             },
             options: {}
@@ -108,7 +110,7 @@ var manifest = {
 
         {
             plugin: {
-                register: "./plugins/api-forecast/api-forecast.js",
+                register: './plugins/api-forecast/api-forecast.js',
                 options: {}
             },
             options: {}
@@ -116,7 +118,7 @@ var manifest = {
 
         {
             plugin: {
-                register: "./plugins/api-readings/api-readings.js",
+                register: './plugins/api-readings/api-readings.js',
                 options: {}
             },
             options: {}
@@ -124,36 +126,36 @@ var manifest = {
 
         {
             plugin: {
-                register: "./plugins/api-sync/api-sync.js",
+                register: './plugins/api-sync/api-sync.js',
                 options: {}
             },
             options: {}
-        }        
+        }
     ]
 
 
 };
 
-// load plugins, unless they are explicitely turned off 
+// load plugins, unless they are explicitely turned off
 
-if(Config.get('good')!=='false'){
+if (Config.get('good') !== 'false'){
     manifest.registrations.push(
         {
             plugin: {
-                register: "good",
-                options: require("./config/plugins/good")
+                register: 'good',
+                options: require('./config/plugins/good')
             },
             options: {}
         }
     );
 }
 
-if(Config.get('blipp')==='false'){
+if (Config.get('blipp') === 'false'){
     manifest.registrations.push(
         {
             plugin: {
-                register: "blipp",
-                options: require("./config/plugins/blipp")
+                register: 'blipp',
+                options: require('./config/plugins/blipp')
             },
             options: {}
         }
@@ -163,14 +165,16 @@ if(Config.get('blipp')==='false'){
 
 
 
-var glueOptions = {
+const glueOptions = {
     relativeTo: __dirname,
-    preRegister: function(server, next){
-        console.log("[glue]: executing preRegister (called prior to registering plugins with the server)")
+    preRegister: function (server, next){
+
+        console.log('[glue]: executing preRegister (called prior to registering plugins with the server)');
         next();
     },
-    preConnections: function(server, next){
-        console.log("[glue]: executing preConnections (called prior to adding connections to the server)")        
+    preConnections: function (server, next){
+
+        console.log('[glue]: executing preConnections (called prior to adding connections to the server)');
         next();
     }
 };
@@ -194,17 +198,18 @@ Glue.compose(manifest, glueOptions, function (err, server) {
         
         // show some informations about the server
         console.log(Chalk.green('================='));
-        console.log("Hapi version: " + server.version);
+        console.log('Hapi version: ' + server.version);
         console.log('host: ' + server.info.host);
         console.log('port: ' + server.info.port);
-        console.log("process.env.NODE_ENV: ", process.env.NODE_ENV);
+        console.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
 
-        Db.query("SELECT version()")
-            .then(function(result){
-                console.log("database: ", result[0].version);
+        Db.query('SELECT version()')
+            .then(function (result){
+
+                console.log('database: ', result[0].version);
                 console.log(Chalk.green('================='));
             });
-       
+
     });
 
 });

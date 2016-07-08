@@ -1,18 +1,17 @@
+
 create table if not exists t_agg( 
-    id bigserial primary key,
-    lid bigint,
+    id serial primary key,
+    lid int,
     
     mac text not null,
     sid smallint not null,
     type text not null,
     description text,
-
     avg real,
     stddev real,
     n smallint,
 
     ts timestamptz not null default now(),
-    --sync bool default false
 );
 
 
@@ -25,3 +24,4 @@ field in the local table will never be changed to true (so that row will be sent
 in the next syncronization)
 
 */
+

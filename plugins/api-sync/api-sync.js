@@ -77,6 +77,17 @@ internals.getJsonHtml = function(content){
 }
 
 
+internals.aggSchema = Joi.object({
+    'id': Joi.number().integer().required(),
+    'mac': Joi.string().required(),
+    'sid': Joi.number().integer().required(),
+    'type': Joi.string().valid('t', 'h').required(),
+    'description': Joi.string().required(),
+    'avg': Joi.number().required(),
+    'stddev': Joi.number().required(),
+    'n': Joi.number().integer().required(),
+    'ts': Joi.string().required()
+});
 
 exports.register = function(server, options, next){
 
@@ -85,47 +96,12 @@ exports.register = function(server, options, next){
         path: "/api/v1/sync",
         method: "PUT",
         config: {
-            handler: function(request, reply) {
-    /*
-                request.query.id = request.query.id || null;
-                request.query.t1 = request.query.t1 || null;
-                request.query.t2 = request.query.t2 || null;
-                request.query.h1 = request.query.h1 || null;
-                request.query.h2 = request.query.h2 || null;
-
-                var doc = { 
-                    ts: Date.now(),
-                    time: new Date().toISOString(),
-                    id: request.query.id,
-                    t1: request.query.t1,
-                    t2: request.query.t2,
-                    h1: request.query.h1,
-                    h2: request.query.h2,
-                };
-*/
-
-                console.log('clientToken: ', request.query.clientToken)
-                console.log('payload: ', request.payload)
-
-                internals.db.insert(request.payload, function (err, newDoc) {
-
-                    if(err){
-                        return reply(Boom.badImplementation(err));
-                    }
-
-                    //return reply(newDoc);
-                    return reply({
-                        ts: new Date().toISOString(),
-                        syncRecords: newDoc.length
-                    });
-                });
-               
-            },
 
             validate: {
                 query: {
                     clientToken: Joi.string().required()
-                }
+                },
+                payload: Joi.array().items(internals.aggSchema).required()
             },
 
             payload: {
@@ -134,7 +110,33 @@ exports.register = function(server, options, next){
                 timeout: false
             }
 
-        }
+        },
+
+        handler: function(request, reply) {
+/*
+            request.query.id = request.query.id || null;
+            request.query.t1 = request.query.t1 || null;
+            request.query.t2 = request.query.t2 || null;
+            request.query.h1 = request.query.h1 || null;
+            request.query.h2 = request.query.h2 || null;
+
+            var doc = { 
+                ts: Date.now(),
+                time: new Date().toISOString(),
+                id: request.query.id,
+                t1: request.query.t1,
+                t2: request.query.t2,
+                h1: request.query.h1,
+                h2: request.query.h2,
+            };
+*/
+
+            console.log('clientToken: ', request.query.clientToken)
+            console.log('payload: ', request.payload)
+
+            return reply({status: "ok"});
+           
+        },
     });
 
 
@@ -142,68 +144,6 @@ exports.register = function(server, options, next){
         path: "/show-readings-new",
         method: "GET",
         config: {
-            handler: function(request, reply) {
-
-                var queryConditions = {};
-                var age = request.query.age;
-                console.log(age)
-
-                // ...?age=2d
-                var agePeriod = age.substr(-1);                    
-                if((agePeriod==='d' || agePeriod==='h') && age.length >= 2){
-                    var ageValue = age.substring(0, age.length-1);
-
-                    var timeLength;
-                    if(agePeriod==='h'){
-                        timeLength = Number(ageValue)*internals['oneHour']
-                    }
-                    else{
-                        timeLength = Number(ageValue)*internals['oneDay']
-                    }
-
-                    //var d = new Date(Date.now() - timeLength);
-                    //queryConditions['ts'] = { $gt: d.getTime() };
-                }
-
-                internals.db
-                    .find(queryConditions, {_id: 0})
-                    .sort({ 
-                        "ts": request.query.sort==="asc" ? 1 : -1 
-                    })
-                    .exec(function (err, docs) {
-                        
-                        // docs = docs.map(function(doc){
-                        //     return {
-                        //         time: doc.time,
-                        //         h1: doc.h1,
-                        //         h2: doc.h2,
-                        //         t1: doc.t1,
-                        //         t2: doc.t2,
-                        //         id: doc.id
-                        //     }
-                        // });
-
-                        if(request.query.format==="json"){
-
-                            var html = internals.getJsonHtml(JsonMarkup(docs));
-                            //console.log(html);
-
-                            return reply(html)
-                         }
-                        else if(request.query.format==="csv"){
-
-                            CsvStringify(docs, {header: true}, function(err, csv){
-
-                                return reply(csv)
-                                    .code(200)
-                                    .header('content-type', 'text/csv')
-                                    .header('content-disposition', 'attachment; filename="spinon_readings.csv"')
-                            })  
-                        }
-                    });
-               
-            },
-
             validate: {
                 query: {
                     "order-by": Joi.any().valid("ts").default("ts"),
@@ -213,8 +153,13 @@ exports.register = function(server, options, next){
 
                 }
             }
+        },
+        handler: function(request, reply) {
 
-        }
+            return reply('to be done');
+
+           
+        },
     });
 
 
