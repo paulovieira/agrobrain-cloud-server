@@ -29,6 +29,8 @@ module.exports = {
         },
     },
 
+    tables: {},
+
 /*
     publicUri: "localhost",  // host
     publicPort: 6001,  // probably 80

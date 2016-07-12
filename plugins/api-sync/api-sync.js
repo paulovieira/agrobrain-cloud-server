@@ -1,29 +1,26 @@
-//var Fs = require("fs");
-var Path = require("path");
-var Config = require("nconf");
-var Datastore = require('nedb');
-//var Hoek = require("hoek");
-var Joi = require("joi");
-//var JSON5 = require("json5");
-var Nunjucks = require("hapi-nunjucks");
-//var Nunjucks = require("/home/pvieira/github/hapi-nunjucks/index.js");
-//var Pre = require("../../server/common/prerequisites");
-var Boom = require("boom");
-var _ = require("underscore");
-var Glob = require("glob");
-//var Utils = require("../../server/utils/utils");
-//var Cp = require("child_process");
-var Config = require('nconf');
-var JsonMarkup = require('json-markup');
+'use strict';
 
-//var Promise = require('bluebird');
-//var CsvStringify = Promise.promisify(require("csv-stringify"));
-var CsvStringify = require("csv-stringify");
+const Path = require('path');
+const Config = require('nconf');
+const Datastore = require('nedb');
+const Pg = require('pg');
+const Joi = require('joi');
+const Boom = require('boom');
+const _ = require('underscore');
+const JsonMarkup = require('json-markup');
+const Utils = require('../../util/utils');
+const Sql = require('./sql-templates');
 
-var Promise = require("bluebird");
-var execAsync = Promise.promisify(require("child_process").exec, {multiArgs: true})
 
-var internals = {};
+
+//const Promise = require('bluebird');
+//const CsvStringify = Promise.promisify(require('csv-stringify'));
+const CsvStringify = require('csv-stringify');
+
+const Promise = require('bluebird');
+const execAsync = Promise.promisify(require('child_process').exec, {multiArgs: true})
+
+const internals = {};
 
 internals['oneHour'] = 60*60*1000;
 internals['oneDay'] = 24*60*60*1000;
@@ -74,7 +71,7 @@ internals.getJsonHtml = function(content){
 `;
 
     return s;
-}
+};
 
 
 internals.aggSchema = Joi.object({
@@ -86,22 +83,27 @@ internals.aggSchema = Joi.object({
     'avg': Joi.number().required(),
     'stddev': Joi.number().required(),
     'n': Joi.number().integer().required(),
-    'ts': Joi.string().required()
+    'ts': Joi.string().required(),
+    'battery': Joi.number().allow([null])
 });
 
 exports.register = function(server, options, next){
 
 
     server.route({
-        path: "/api/v1/sync",
-        method: "PUT",
+        path: '/api/v1/sync/agg',
+        method: 'PUT',
         config: {
 
             validate: {
                 query: {
                     clientToken: Joi.string().required()
                 },
-                payload: Joi.array().items(internals.aggSchema).required()
+                payload: Joi.array().items(internals.aggSchema).required(),
+                // options: {
+                //     allowUnknown: true
+                // }
+
             },
 
             payload: {
@@ -113,28 +115,41 @@ exports.register = function(server, options, next){
         },
 
         handler: function(request, reply) {
-/*
-            request.query.id = request.query.id || null;
-            request.query.t1 = request.query.t1 || null;
-            request.query.t2 = request.query.t2 || null;
-            request.query.h1 = request.query.h1 || null;
-            request.query.h2 = request.query.h2 || null;
 
-            var doc = { 
-                ts: Date.now(),
-                time: new Date().toISOString(),
-                id: request.query.id,
-                t1: request.query.t1,
-                t2: request.query.t2,
-                h1: request.query.h1,
-                h2: request.query.h2,
-            };
-*/
+            //console.log('clientToken: ', request.query.clientToken)
+            //console.log('payload: ', request.payload)
 
-            console.log('clientToken: ', request.query.clientToken)
-            console.log('payload: ', request.payload)
+            Pg.connect(Config.get('db:postgres'), function (err, pgClient, done) {
 
-            return reply({status: "ok"});
+                let boom;
+                if (err) {
+                    boom = Boom.badImplementation();
+                    boom.output.payload.message = err.message;
+                    return reply(boom);
+                }
+
+                const tableCode = Utils.getTableCode(request.query.clientToken);
+                var upsert = Sql.upsertAgg(tableCode, request.payload);
+
+                pgClient.query(Sql.upsertAgg(tableCode, request.payload), function (err, result) {
+
+                    done();
+
+                    if (err) {
+                        boom = Boom.badImplementation();
+                        boom.output.payload.message = err.message;
+                        return reply(boom);
+                    }
+
+                    if (result.rowCount === 0){
+                        boom = Boom.badImplementation();
+                        boom.output.payload.message = 'result.rowCount should be > 0 (data was not saved?)';
+                        return reply(boom);
+                    }
+
+                    return reply({ records: result.rows, ts: new Date().toISOString() });
+                });
+            });
            
         },
     });

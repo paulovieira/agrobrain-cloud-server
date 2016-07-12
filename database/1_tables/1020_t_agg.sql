@@ -1,7 +1,6 @@
 
-create table if not exists t_agg( 
-    id serial primary key,
-    lid int,
+create table if not exists t_agg(
+    id int primary key,
     
     mac text not null,
     sid smallint not null,
@@ -12,16 +11,6 @@ create table if not exists t_agg(
     n smallint,
 
     ts timestamptz not null default now(),
+    battery smallint
 );
-
-
-/*
-
-TODO: create a trigger function to be executed after each insert, which will find duplicated
-lines; this might happen if the data is inserted from the remote but the response from the cloud-server
-doesn't arrive to the local-server for some reason; the response will be lost after the timeout, and the sync 
-field in the local table will never be changed to true (so that row will be sent again by the local server
-in the next syncronization)
-
-*/
 
