@@ -62,7 +62,7 @@ const manifest = {
         {
             plugin: {
                 register: 'nes',
-                options: {}
+                options: require('./config/plugins/nes')
             },
             options: {}
         },
@@ -99,6 +99,16 @@ const manifest = {
         // },
 
 
+        // dependencies: ["inert"]
+        {
+            plugin: {
+                register: './plugins/hapi-public/hapi-public.js',
+                options: require('./config/plugins/hapi-public')
+            },
+            options: {}
+        },
+
+
         {
             plugin: {
                 register: './plugins/measurements/measurements.js',
@@ -127,6 +137,14 @@ const manifest = {
         {
             plugin: {
                 register: './plugins/api-sync/api-sync.js',
+                options: {}
+            },
+            options: {}
+        },
+
+        {
+            plugin: {
+                register: './plugins/api-commands/api-commands.js',
                 options: {}
             },
             options: {}

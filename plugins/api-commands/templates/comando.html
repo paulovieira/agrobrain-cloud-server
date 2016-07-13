@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link href="/public/lib/bootstrap/3.3.5/css/bootstrap.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <div class="container">
+        <div class="jumbotron" style="margin-top: 20px;">
+            <h1>Spinon is arriving!</h1>
+			
+			<p>
+				Estado actual: ...
+			</p>
+			
+            <p>
+            <a class="btn btn-lg btn-success" data-command='high' href="#" role="button">Ligar rega</a>
+            <a class="btn btn-lg btn-danger" data-command='low' href="#" role="button">Desligar rega</a>
+            </p>
+        </div>
+    </div>
+    <script src="/public/lib/jquery/jquery-1.11.2.js"></script>
+    <script src="/public/libs/nes/client.js"></script>
+    
+    <script>
+    var internals = {};
+
+    // todo: change the address in production
+    internals.client = new nes.Client('ws://localhost:8000');
+
+    const connectOptions = {
+        maxDelay: 15000
+    };
+
+    internals.client.connect(connectOptions, function (err){
+
+        if (err){
+            console.log({ message: err.message, type: err.type } );
+        }
+
+        console.log('connection established with id: ' + internals.client.id );
+
+        internals.client.subscribe(
+            '/api/v1/status',
+            function (message, flags){
+
+                console.log({ message: message } );
+            },
+            function (err){
+
+                if (err){
+                    console.log({ message: err.message, type: err.type } );
+                }
+            }
+        );
+
+    });
+
+
+    $('a.btn').on('click', function(e){
+
+    	var command = $(e.target).data('command');
+
+        const options = {
+            path: '/api/v1/set-command',
+            method: 'PUT',
+            payload: JSON.stringify({ command: command })
+        };
+
+        internals.client.request(options, function (err, serverPayload, statusCode){
+        	//debugger;
+            if (err){
+                console.log(err.message);
+                return;
+            }
+
+            if (statusCode !== 200){
+                console.log('status code is not 200');
+                return;
+            }
+
+            console.log(serverPayload);
+            return;
+        });
+
+
+
+    	// $.ajax({
+    	// 	method: 'PUT',
+     //        url: "/api/v1/initiatives",
+     //        method: "PUT",
+     //        contentType: "application/json",
+     //        // processData: false  ???
+     //        data: JSON.stringify(RC.initiativeData),
+    	// })
+    })
+    </script
+</body>
+
+</html>
