@@ -19,10 +19,10 @@ internals.createTables = function(){
 	// "mkdir" method from fs-extra ("If the parent hierarchy doesn't exist, it's created. Like mkdir -p")
     Fs.mkdirsSync(tempDir);
 
-    const tables = Config.get('tables');
-    const tablesValues = [];
-    for (const key in tables){
-        tablesValues.push(tables[key]);
+    const clientCodes = Config.get('clientCodes');
+    const clientCodesValues = [];
+    for (const key in clientCodes){
+        clientCodesValues.push(clientCodes[key]);
     }
 
     Glob.sync('database/1_tables/*t_measurements.sql').forEach(function (scriptPath){
@@ -33,8 +33,8 @@ internals.createTables = function(){
         let after    = 'create table if not exists t_measurements_XXXX(';
 
         let query = '';
-        for (let i = 0; i < tablesValues.length; ++i){
-            after = `create table if not exists t_measurements_${ tablesValues[i] }(`;
+        for (let i = 0; i < clientCodesValues.length; ++i){
+            after = `create table if not exists t_measurements_${ clientCodesValues[i] }(`;
             query = query + script.replace(before, after);
         }
 
@@ -57,8 +57,8 @@ internals.createTables = function(){
         let after    = 'create table if not exists t_agg_XXXX(';
 
         let query = '';
-        for (let i = 0; i < tablesValues.length; ++i){
-            after = `create table if not exists t_agg_${ tablesValues[i] }(`;
+        for (let i = 0; i < clientCodesValues.length; ++i){
+            after = `create table if not exists t_agg_${ clientCodesValues[i] }(`;
             query = query + script.replace(before, after);
         }
 

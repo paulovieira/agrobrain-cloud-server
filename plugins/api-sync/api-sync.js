@@ -6,8 +6,7 @@ const Datastore = require('nedb');
 const Pg = require('pg');
 const Joi = require('joi');
 const Boom = require('boom');
-const _ = require('underscore');
-const JsonMarkup = require('json-markup');
+//const _ = require('underscore');
 const Utils = require('../../util/utils');
 const Sql = require('./sql-templates');
 
@@ -15,7 +14,7 @@ const Sql = require('./sql-templates');
 
 //const Promise = require('bluebird');
 //const CsvStringify = Promise.promisify(require('csv-stringify'));
-const CsvStringify = require('csv-stringify');
+//const CsvStringify = require('csv-stringify');
 
 const Promise = require('bluebird');
 const execAsync = Promise.promisify(require('child_process').exec, {multiArgs: true})
@@ -31,48 +30,6 @@ internals.phantomScript = Path.join(__dirname, "phantom.js");
 
 internals.db = new Datastore({ filename: Path.join(Config.get("rootDir"), "database", 'readings-new.json'), autoload: true });
 
-internals.getJsonHtml = function(content){
-
-    var s = `
-<html>
-<head>
-<style>
-
-.json-markup {
-    line-height: 17px;
-    font-size: 13px;
-    font-family: monospace;
-    white-space: pre;
-}
-.json-markup-key {
-    font-weight: bold;
-}
-.json-markup-bool {
-    color: firebrick;
-}
-.json-markup-string {
-    color: green;
-}
-.json-markup-null {
-    color: gray;
-}
-.json-markup-number {
-    color: blue;
-}
-
-</style>
-</head>
-<body>
-
-    ${ content }
-
-</body>
-</html>
-`;
-
-    return s;
-};
-
 
 internals.aggSchema = Joi.object({
     'id': Joi.number().integer().required(),
@@ -87,11 +44,23 @@ internals.aggSchema = Joi.object({
     'battery': Joi.number().allow([null])
 });
 
-exports.register = function(server, options, next){
+internals.measurementsSchema = Joi.object({
+    'id': Joi.number().integer().required(),
+    'mac': Joi.string().required(),
+    'sid': Joi.number().integer().required(),
+    'type': Joi.string().valid('t', 'h').required(),
+    'description': Joi.string().required(),
+    'val': Joi.number().required(),
+    'ts': Joi.string().required(),
+    'battery': Joi.number().allow([null]),
+    'agg': Joi.boolean().required()
+});
+
+exports.register = function (server, options, next){
 
 
     server.route({
-        path: '/api/v1/sync/agg',
+        path: '/api/v1/sync',
         method: 'PUT',
         config: {
 
@@ -99,11 +68,10 @@ exports.register = function(server, options, next){
                 query: {
                     clientToken: Joi.string().required()
                 },
-                payload: Joi.array().items(internals.aggSchema).required(),
-                // options: {
-                //     allowUnknown: true
-                // }
-
+                payload: Joi.object({
+                    agg:          Joi.array().items(internals.aggSchema).required(),
+                    measurements: Joi.array().items(internals.measurementsSchema).required()
+                })
             },
 
             payload: {
@@ -111,7 +79,6 @@ exports.register = function(server, options, next){
                 parse: true,
                 timeout: false
             }
-
         },
 
         handler: function(request, reply) {
@@ -128,10 +95,69 @@ exports.register = function(server, options, next){
                     return reply(boom);
                 }
 
-                const tableCode = Utils.getTableCode(request.query.clientToken);
-                var upsert = Sql.upsertAgg(tableCode, request.payload);
+                const clientCode = Utils.getClientCode(request.query.clientToken);
 
-                pgClient.query(Sql.upsertAgg(tableCode, request.payload), function (err, result) {
+                pgClient.query(Sql.upsertAgg(clientCode, request.payload.agg), function (err, result) {
+
+                    if (err) {
+                        boom = Boom.badImplementation();
+                        boom.output.payload.message = err.message;
+                        done();
+                        return reply(boom);
+                    }
+
+                    pgClient.query(Sql.upsertMeasurements(clientCode, request.payload.measurements), function (err2, result2) {
+
+                        done();
+
+                        if (err2) {
+                            boom = Boom.badImplementation();
+                            boom.output.payload.message = err2.message;
+                            return reply(boom);
+                        }
+
+                        return reply({ 
+                            agg: result.rows, 
+                            measurements: result2.rows, 
+                            ts: new Date().toISOString() 
+                        });
+                    });
+                });
+            });
+           
+        }
+    });
+
+
+    // example: /show-readings-new?client=permalab&table=agg&age=24
+    // example: /show-readings-new?client=permalab&table=measurements&age=24
+    server.route({
+        path: '/show-readings-new',
+        method: 'GET',
+        config: {
+            validate: {
+                query: {
+                    'client': Joi.string().required(),
+                    'table': Joi.string().valid('agg', 'measurements').required(),
+                    'age': Joi.number().integer().required()
+
+                }
+            }
+        },
+        handler: function (request, reply) {
+
+            const clientCode = Utils.getClientCode(request.query.client);
+
+            Pg.connect(Config.get('db:postgres'), function (err, pgClient, done) {
+
+                let boom;
+                if (err) {
+                    boom = Boom.badImplementation();
+                    boom.output.payload.message = err.message;
+                    return reply(boom);
+                }
+
+                pgClient.query(Sql.getRecords(clientCode, request.query.table, request.query.age), function (err, result) {
 
                     done();
 
@@ -141,42 +167,17 @@ exports.register = function(server, options, next){
                         return reply(boom);
                     }
 
-                    if (result.rowCount === 0){
-                        boom = Boom.badImplementation();
-                        boom.output.payload.message = 'result.rowCount should be > 0 (data was not saved?)';
-                        return reply(boom);
-                    }
+                    result.rows.forEach((obj) => {
 
-                    return reply({ records: result.rows, ts: new Date().toISOString() });
+                        obj.ts = obj.ts.toISOString().slice(0, -5);
+                    });
+
+                    return reply(Utils.jsonMarkup(result.rows));
+
                 });
             });
-           
-        },
+        }
     });
-
-
-    server.route({
-        path: "/show-readings-new",
-        method: "GET",
-        config: {
-            validate: {
-                query: {
-                    "order-by": Joi.any().valid("ts").default("ts"),
-                    "sort": Joi.any().valid("asc", "desc").default("asc"),
-                    "format": Joi.any().valid("csv", "json").default("json"),
-                    "age": Joi.any()
-
-                }
-            }
-        },
-        handler: function(request, reply) {
-
-            return reply('to be done');
-
-           
-        },
-    });
-
 
     return next();
 };
