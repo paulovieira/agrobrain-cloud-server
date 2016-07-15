@@ -59,7 +59,7 @@
             '/api/v1/state',
             function (message, flags){
 
-                $('span#current-state').html(message.state === 0 ? 'ligado' : 'desligado');
+                $('span#current-state').html(message.state === 1 ? 'ligado' : 'desligado');
                 $('span#updated-at').html(fecha.format(new Date(), 'YYYY-MM-DD HH:mm:ss'));
                 console.log(message);
             },
