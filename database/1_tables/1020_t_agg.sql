@@ -11,6 +11,7 @@ create table if not exists t_agg(
     n smallint,
 
     ts timestamptz not null default now(),
-    battery smallint
+    battery smallint,
+    sync jsonb default '{}'
 );
 

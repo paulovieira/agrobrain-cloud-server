@@ -21,16 +21,18 @@
             <h1>Spinon is arriving!</h1>
 			
 			<p>
-				Estado actual: ...
+				Estado actual: <span id='current-state'></span> (última actualização: <span id='updated-at'></span>)
 			</p>
 			
             <p>
-            <a class="btn btn-lg btn-success" data-command='high' href="#" role="button">Ligar rega</a>
-            <a class="btn btn-lg btn-danger" data-command='low' href="#" role="button">Desligar rega</a>
+            <a class="btn btn-lg btn-success" data-command='0' href="#" role="button">Ligar rega</a>
+            &nbsp;&nbsp;
+            <a class="btn btn-lg btn-danger" data-command='1' href="#" role="button">Desligar rega</a>
             </p>
         </div>
     </div>
     <script src="/public/lib/jquery/jquery-1.11.2.js"></script>
+    <script src="/public/lib/fecha-2.1.0.js"></script>
     <script src="/public/libs/nes/client.js"></script>
     
     <script>
@@ -52,16 +54,21 @@
         console.log('connection established with id: ' + internals.client.id );
 
         internals.client.subscribe(
-            '/api/v1/status',
+            '/api/v1/state',
             function (message, flags){
 
-                console.log({ message: message } );
+                $('span#current-state').html(message.state === 0 ? 'ligado' : 'desligado');
+                $('span#updated-at').html(fecha.format(new Date(), 'YYYY-MM-DD HH:mm:ss'));
+                console.log(message);
             },
             function (err){
 
                 if (err){
                     console.log({ message: err.message, type: err.type } );
+                    return;
                 }
+
+                console.log('subscription request was received by the server');
             }
         );
 

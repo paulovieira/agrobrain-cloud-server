@@ -1,17 +1,18 @@
 'use strict';
 
 const Path = require('path');
-const Nunjucks = require("hapi-nunjucks");
-const Config = require("nconf");
+const Nunjucks = require('hapi-nunjucks');
+const Config = require('nconf');
+const Joi = require('joi');
 
 const internals = {};
 
 internals.endpoints = {
     commands: '/api/v1/commands',
-    status: '/api/v1/status'
+    state:    '/api/v1/state'
 };
 
-internals.status = false;
+internals.state = false;
 
 exports.register = function (server, options, next){
 
@@ -57,74 +58,57 @@ exports.register = function (server, options, next){
         auth: false
     });
 
-    server.subscription(internals.endpoints.status, {
+    server.subscription(internals.endpoints.state, {
         filter: function (path, message, filterOptions, next3){
 
-            server.log(['api-commands', 'subscription (status)', 'filter'], { socketId: filterOptions.socket.id, path: path });
+            server.log(['api-commands', 'subscription (state)', 'filter'], { socketId: filterOptions.socket.id, path: path });
             next3(true);
         },
         auth: false
     });
 
 
-
+    // called by the client on the rpi every 5 seconds
     server.route({
-        path: '/publish',
-        method: 'GET',
-        config: {},
-        handler: function (request, reply){
-
-            const data = {
-                command: 'HIGH',
-                ts: new Date().toISOString()
-            };
-
-            server.publish(internals.endpoints.commands, data);
-            return reply(`[${ new Date().toISOString() }]: check the output in the console`);
-        }
-    });
-
-    // called by the client on the rpi whenever the status changes
-    server.route({
-        path: '/api/v1/set-status',
+        path: '/api/v1/set-state',
         method: 'PUT',
-        config: {},
+        config: {
+            validate: {
+                payload: Joi.object({
+                    state: Joi.number().integer().valid(0, 1).required(),
+                    updatedAt: Joi.string().required()
+                })
+            }
+
+        },
         handler: function (request, reply){
 
             console.log(request.payload);
-            server.publish(internals.endpoints.status, request.payload);
+            server.publish(internals.endpoints.state, request.payload);
+
             return reply({ ts: new Date().toISOString() });
         }
     });
 
-    // called by the client with the user interface to change the command 
+    // called by the client with the user interface to change the command
     server.route({
         path: '/api/v1/set-command',
         method: 'PUT',
-        config: {},
+        config: {
+            validate: {
+                payload: Joi.object({
+                    command: Joi.number().integer().valid(0, 1).required()
+                })
+            }
+        },
         handler: function (request, reply){
 
-            // todo: validation, auth
+            console.log(request.payload);
             server.publish(internals.endpoints.commands, request.payload);
+
             return reply({ ts: new Date().toISOString() });
         }
     });
-
-    // server.route({
-    //     path: '/comando',
-    //     method: 'GET',
-    //     config: {},
-    //     handler: function (request, reply){
-
-    //         const data = {
-    //             command: 'HIGH',
-    //             ts: new Date().toISOString()
-    //         };
-
-    //         server.publish(internals.endpoints.commands, data);
-    //         return reply(`[${ new Date().toISOString() }]: check the output in the console`);
-    //     }
-    // });
 
     server.route({
         path: '/comando',

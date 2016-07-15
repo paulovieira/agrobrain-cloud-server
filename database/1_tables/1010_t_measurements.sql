@@ -10,6 +10,7 @@ create table if not exists t_measurements(
 
     ts timestamptz not null default now(),
     battery smallint,
-    agg bool default false
+    agg bool default false,
+    sync jsonb default '{}'
 );
 
