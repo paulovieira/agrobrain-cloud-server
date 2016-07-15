@@ -37,9 +37,11 @@
     
     <script>
     var internals = {};
+    internals.env = '{{ ctx.env }}';
+    internals.websocketUrlBase = '{{ ctx.websocketUrlBase }}';
 
     // todo: change the address in production
-    internals.client = new nes.Client('ws://localhost:8000');
+    internals.client = new nes.Client(internals.websocketUrlBase);
 
     const connectOptions = {
         maxDelay: 15000

@@ -117,7 +117,10 @@ exports.register = function (server, options, next){
         },
         handler: function (request, reply) {
 
-            const context = {};
+            const context = { 
+                env: Config.get('env'),
+                websocketUrlBase: Config.get('websocketUrlBase')
+            };
             return reply.view(Path.join(__dirname, 'templates/comando.html'), { ctx: context });
         }
     });
