@@ -56,6 +56,13 @@ internals.measurementsSchema = Joi.object({
     'agg': Joi.boolean().required()
 });
 
+internals.logStateSchema = Joi.object({
+    'id': Joi.number().integer().required(),
+    'event': Joi.any().required(),
+    'ts_start': Joi.string().required(),
+    'ts_end': Joi.string().required()
+});
+
 exports.register = function (server, options, next){
 
 
@@ -70,7 +77,8 @@ exports.register = function (server, options, next){
                 },
                 payload: Joi.object({
                     agg:          Joi.array().items(internals.aggSchema).required(),
-                    measurements: Joi.array().items(internals.measurementsSchema).required()
+                    measurements: Joi.array().items(internals.measurementsSchema).required(),
+                    logState:     Joi.array().items(internals.logStateSchema).required()
                 })
             },
 
@@ -108,19 +116,30 @@ exports.register = function (server, options, next){
 
                     pgClient.query(Sql.upsertMeasurements(clientCode, request.payload.measurements), function (err2, result2) {
 
-                        done();
-
                         if (err2) {
                             boom = Boom.badImplementation();
                             boom.output.payload.message = err2.message;
                             return reply(boom);
                         }
 
-                        return reply({ 
-                            agg: result.rows, 
-                            measurements: result2.rows, 
-                            ts: new Date().toISOString() 
+                        pgClient.query(Sql.upsertLogState(clientCode, request.payload.logState), function (err3, result3) {
+
+                            done();
+
+                            if (err3) {
+                                boom = Boom.badImplementation();
+                                boom.output.payload.message = err3.message;
+                                return reply(boom);
+                            }
+
+                            return reply({ 
+                                agg: result.rows, 
+                                measurements: result2.rows, 
+                                logState: result3.rows, 
+                                ts: new Date().toISOString() 
+                            });
                         });
+
                     });
                 });
             });

@@ -73,8 +73,32 @@ internals.createTables = function(){
         }
     });
 
+    Glob.sync('database/1_tables/*t_log_state.sql').forEach(function (scriptPath){
+
+        const script = Fs.readFileSync(scriptPath, 'utf8');
+
+        const before = 'create table if not exists t_log_state(';
+        let after    = 'create table if not exists t_log_state_XXXX(';
+
+        let query = '';
+        for (let i = 0; i < clientCodesValues.length; ++i){
+            after = `create table if not exists t_log_state_${ clientCodesValues[i] }(`;
+            query = query + script.replace(before, after);
+        }
+
+        const tempFile = Path.join(tempDir, 't_log_state.sql');
+        Fs.writeFileSync(tempFile, query);
+
+        try {
+            Psql({ file: tempFile });
+        }
+        catch (err){
+            process.exit();
+        }
+
+    });
     // "remove" method from fs-extra ("directory can have contents")
-    Fs.removeSync(tempDir);
+    //Fs.removeSync(tempDir);
 
 };
 

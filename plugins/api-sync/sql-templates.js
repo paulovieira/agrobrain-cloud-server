@@ -158,6 +158,70 @@ RETURNING id;
     return sql;
 };
 
+
+
+module.exports.upsertLogState = function upsertLogState(clientCode, data){
+
+    let sql = '';
+
+    if (!data || data.length === 0){
+
+        // make a query that won't change anything and that returns no rows
+        sql = `
+
+UPDATE "t_agg_${ clientCode }" 
+set id = -1
+where id = -1;
+
+        `;
+
+        return sql;
+    }
+
+    sql = `
+
+INSERT INTO "t_log_state_${ clientCode }" (
+    id,
+    event, 
+    ts_start,
+    ts_end
+)
+VALUES
+
+    `;
+
+    let i = 0;
+    const l = data.length;
+    for (; i < l; ++i){
+
+        sql += `
+(
+     ${ data[i]['id']        },
+    '${ JSON.stringify(data[i]['event'])     }',
+    '${ data[i]['ts_start']  }',
+    '${ data[i]['ts_end']    }'
+),
+        `;
+    }
+
+    // remove the comma in the tail (we know l > 0)
+    sql = sql.trim().slice(0, -1);
+
+    // it might happen that the row is already in the table (but the 'sync' flag wasn't set to true 
+    // in the local database)
+    sql += `
+
+ON CONFLICT (id) DO UPDATE SET 
+    event     = EXCLUDED.event,
+    ts_start  = EXCLUDED.ts_start,
+    ts_end    = EXCLUDED.ts_end
+
+RETURNING id;
+`;
+
+    return sql;
+};
+
 module.exports.getRecords = function getRecords(clientCode, table, age){
 
     var sql = `
