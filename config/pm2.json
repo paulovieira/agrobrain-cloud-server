@@ -2,9 +2,7 @@
   "name": "agrobrain-cloud-server",
   "script": "./index.js",
   "args": [
-    "--production",
-    "--good=true",
-    "--blipp=false"
+    "--production"
   ],
   "env": {
   },

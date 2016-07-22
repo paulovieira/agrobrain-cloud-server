@@ -7,7 +7,7 @@ const Pg = require('pg');
 const Joi = require('joi');
 const Boom = require('boom');
 //const _ = require('underscore');
-const Utils = require('../../util/utils');
+const Utils = require('../../utils/util');
 const Sql = require('./sql-templates');
 
 
@@ -127,6 +127,7 @@ exports.register = function (server, options, next){
                             done();
 
                             if (err3) {
+                                Utils.logErr(err3, ['query']);
                                 boom = Boom.badImplementation();
                                 boom.output.payload.message = err3.message;
                                 return reply(boom);

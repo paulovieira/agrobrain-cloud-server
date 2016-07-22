@@ -8,6 +8,7 @@ const Hoek = require('hoek');
 const Chalk = require('chalk');
 const Bluebird = require('bluebird');
 const Db = require('./database');
+const Utils = require('./utils/util');
 
 process.title = Config.get('applicationTitle');
 
@@ -58,6 +59,22 @@ const manifest = {
 //            },
 //            options: {}
 //        },
+
+        {
+            plugin: {
+                register: 'good',
+                options: require('./config/plugins/good')
+            },
+            options: {}
+        },
+
+        {
+            plugin: {
+                register: 'blipp',
+                options: require('./config/plugins/blipp')
+            },
+            options: {}
+        },
 
         {
             plugin: {
@@ -156,34 +173,23 @@ const manifest = {
 
 // load plugins, unless they are explicitely turned off
 
-if (Config.get('good') !== 'false'){
-    manifest.registrations.push(
-        {
-            plugin: {
-                register: 'good',
-                options: require('./config/plugins/good')
-            },
-            options: {}
-        }
-    );
-}
-
-if (Config.get('blipp') === 'false'){
-    manifest.registrations.push(
-        {
-            plugin: {
-                register: 'blipp',
-                options: require('./config/plugins/blipp')
-            },
-            options: {}
-        }
-    );
-}
+// if(Config.get('my-plugin')!=='false'){
+//     manifest.registrations.push(
+//        {
+//            plugin: {
+//                register: "...",
+//                options: require("./config/plugins/...")
+//            },
+//            options: {}
+//        }
+//     );
+// }
 
 
 
 
 const glueOptions = {
+    clone: false,
     relativeTo: __dirname,
     preRegister: function (server, next){
 
@@ -214,6 +220,8 @@ Glue.compose(manifest, glueOptions, function (err, server) {
 
         Hoek.assert(!err, 'Failed server start: ' + err);
         
+        Utils.setServer(server);
+
         // show some informations about the server
         console.log(Chalk.green('================='));
         console.log('Hapi version: ' + server.version);

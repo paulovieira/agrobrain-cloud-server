@@ -19,3 +19,6 @@ config/dev.js
 config/dev-email.js
 config/production.js
 database/readings-*.json
+database/__*
+logs
+
