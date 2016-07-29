@@ -18,7 +18,7 @@
     "csv-stringify": "^1.0.4",
     "fs-extra": "^0.30.0",
     "glob": "^7.0.3",
-    "glue": "paulovieira/glue#clone-option",
+    "glue": "hapijs/glue#f0ae76",
     "good": "^7.0.1",
     "good-console": "^6.1.2",
     "good-squeeze": "^4.0.0",
