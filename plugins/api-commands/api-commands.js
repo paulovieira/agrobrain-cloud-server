@@ -119,7 +119,7 @@ exports.register = function (server, options, next){
 
             const context = { 
                 env: Config.get('env'),
-                websocketUrlBase: Config.get('websocketUrlBase')
+                websocketUrlBase: 'ws://' + Config.get('publicUrl')
             };
             return reply.view(Path.join(__dirname, 'templates/comando.html'), { ctx: context });
         }

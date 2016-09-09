@@ -13,7 +13,7 @@ module.exports.setServer = function (server){
 
 module.exports.getClientCode = function (token){
 
-    return Config.get('clientCodes')[token];
+    return Config.get('clientTokens')[token];
 };
 
 module.exports.jsonMarkup = function (value){

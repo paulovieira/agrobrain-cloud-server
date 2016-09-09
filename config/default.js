@@ -1,100 +1,131 @@
-var Path = require('path');
+'use strict';
 
-var internals = {
-    rootDir: Path.join(__dirname, '..')
+const Path = require('path');
+
+const internals = {
+    rootDir: Path.resolve(__dirname, '..')
 };
 
 module.exports = {
 
-    applicationTitle: 'agrobrain-cloud-server',
-
-    host: 'localhost',
-    port: 6010,
-
-    publicUri: '',  // host
-    publicPort: 80,  // probably 80
-    publicIp: '',
-
     rootDir: internals.rootDir,
-    phantomCommand: Path.join(process.env['HOME'], '/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'),
+    applicationTitle: 'agrobrain-cloud',
+
+    publicIp: '',
+    publicPort: '',
+    publicUrl: '',
+
+    clientTokens: {},
+    phantomCommand: '',
 
     db: {
-
+        // should be redefined in some other configuration file (that should be present in .gitignore)
         postgres: {
             host: 'localhost',
             port: 5432,
             database: '',
             username: '',
-            password: '',
-        },
+            password: ''
+        }
     },
 
-    tables: {},
+    plugins: {
 
-/*
-    publicUri: "localhost",  // host
-    publicPort: 6001,  // probably 80
-    publicIp: "127.0.0.1",
+        'nes': {
 
+            onConnection: function (socket){
 
+                console.log('new client: ', socket.id);
+            },
+            onDisconnection: function (socket){
 
-    email: {
-        send: false,
-        moderatorAddress: "moderadores@redeconvergir.net",
-        moderatorName: "Rede Convergir - moderadores",
-        infoAddress: "info@redeconvergir.net",
-        infoName: "Rede Convergir - info",
+                console.log('terminated client: ', socket.id);
+            },
+            onMessage: function (socket, message, next){
 
-        mandrill: {
-            apiKey: ""
-        },
-        //templatesDir: Path.join(internals.rootDir, "server/email-mandrill/templates"),
-    },
+                console.log('new message: ', message);
+                console.log('client: ', socket.id);
+                const data = { status: 'received', ts: new Date().toISOString() };
 
-    db: {
+                return next(data);
+            },
 
-        postgres: {
-            host: "",
-            port: 5432,
-            database: "",
-            username: "",
-            password: "",
+            auth: false,
 
-            getConnectionString: function(){
-                return "postgres://" +
-                        this.username + ":" +
-                        this.password + "@" +
-                        this.host + ":" + this.port +  "/" +
-                        this.database;
+            payload: {
+
+                // maximum number of characters allowed in a single WebSocket message;
+                // important when using the protocol over a slow network with large updates as the transmission
+                // time can exceed the timeout or heartbeat limits which will cause the client to disconnect.
+                maxChunkChars: false
+            },
+
+            heartbeat: {
+                interval: 15000,
+                timeout: 10000
             }
         },
-    },
-*/
 
-    hapi: {
+        // good configuration is entirely defined the respective mode's file
+        'good': {
+        },
 
-        ironPassword: '',
+        'blipp': { 
+            showAuth: true,
+            showStart: true
+        },
+
+        'hapi-public': {
+
+            file: [
+                // { 
+                //     path: '/favicon.ico', 
+                //     handler: { path: Path.join(internals.rootDir, 'public/images/favicon.ico') }
+                // }
+                { 
+                    path: '/public/libs/nes/client.js', 
+                    handler: { path: Path.join(internals.rootDir, 'node_modules/nes/dist/client.js') }
+                }
+            ],
+
+            directory: [
+                {
+                    path: '/public/{anyPath*}',
+                    handler: { path: Path.join(internals.rootDir, 'public') }
+                }
+            ],
+
+            fileHandlerDefaults: {
+                etagMethod: 'simple'
+            },
+
+            directoryHandlerDefaults: {
+                index: false,
+                listing: false,
+                showHidden: false
+            },
+
+            configDefaults: {
+            }
+        }
 
 
-        // documentation: https://github.com/hapijs/joi#validatevalue-schema-options-callback
-        joi: {
+    }
+
 /*
+    hapi: {
+        
+        joi: {
+
+            // documentation: https://github.com/hapijs/joi#validatevalue-schema-options-callback
+
             abortEarly: true,  // returns all the errors found (does not stop on the first error)
             stripUnknown: true,  // delete unknown keys; this means that when the handler executes, only the keys that are explicitely stated
             // in the schema will be present in request.payload and request.query 
             convert: true
-*/
-        },
-    },
-/*
-    apiPrefix: {
-        v1: "/api/v1"
-    },
 
-    dashboard: {
-        user: "",
-        password: ""
+        }
     }
 */
-};
 
+};

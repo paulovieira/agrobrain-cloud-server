@@ -1,6 +1,7 @@
 'use strict';
 
 require('./config/load');
+require('./config/promisify');
 
 const Config = require('nconf');
 const Glue = require('glue');
@@ -43,19 +44,17 @@ const manifest = {
 
     connections: [
         {
-            //host: 'localhost',
-            address: '127.0.0.1',
-            port: 8000
+            address: Config.get('publicIp'),
+            port: Config.get('publicPort')
         }
     ],
-
 
     registrations: [
 
 //        {
 //            plugin: {
 //                register: "...",
-//                options: require("./config/plugins/...")
+//                options: Config.get('plugins:...')
 //            },
 //            options: {}
 //        },
@@ -63,7 +62,7 @@ const manifest = {
         {
             plugin: {
                 register: 'good',
-                options: require('./config/plugins/good')
+                options: Config.get('plugins:good')
             },
             options: {}
         },
@@ -71,7 +70,7 @@ const manifest = {
         {
             plugin: {
                 register: 'blipp',
-                options: require('./config/plugins/blipp')
+                options: Config.get('plugins:blipp')
             },
             options: {}
         },
@@ -79,7 +78,7 @@ const manifest = {
         {
             plugin: {
                 register: 'nes',
-                options: require('./config/plugins/nes')
+                options: Config.get('plugins:nes')
             },
             options: {}
         },
@@ -120,7 +119,7 @@ const manifest = {
         {
             plugin: {
                 register: './plugins/hapi-public/hapi-public.js',
-                options: require('./config/plugins/hapi-public')
+                options: Config.get('plugins:hapi-public')
             },
             options: {}
         },
@@ -171,33 +170,17 @@ const manifest = {
 
 };
 
-// load plugins, unless they are explicitely turned off
-
-// if(Config.get('my-plugin')!=='false'){
-//     manifest.registrations.push(
-//        {
-//            plugin: {
-//                register: "...",
-//                options: require("./config/plugins/...")
-//            },
-//            options: {}
-//        }
-//     );
-// }
-
-
-
 
 const glueOptions = {
     relativeTo: __dirname,
     preRegister: function (server, next){
 
-        console.log('[glue]: executing preRegister (called prior to registering plugins with the server)');
+        //console.log('[glue]: executing preRegister (called prior to registering plugins with the server)');
         next();
     },
     preConnections: function (server, next){
 
-        console.log('[glue]: executing preConnections (called prior to adding connections to the server)');
+        //console.log('[glue]: executing preConnections (called prior to adding connections to the server)');
         next();
     }
 };
@@ -215,27 +198,24 @@ Glue.compose(manifest, glueOptions, function (err, server) {
 
 
     // start the server and finish the initialization process
-    server.start(function(err) {
+    server.start( function(err){
 
         Hoek.assert(!err, 'Failed server start: ' + err);
-        
         Utils.setServer(server);
-
-        // show some informations about the server
-        console.log(Chalk.green('================='));
-        console.log('Hapi version: ' + server.version);
-        console.log('host: ' + server.info.host);
-        console.log('port: ' + server.info.port);
-        console.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
+        
+        // show some basic informations about the server
+        console.log(Chalk.cyan('================='));
+        console.log('hapi version:', server.version);
+        console.log('host:', server.info.host);
+        console.log('port:', server.info.port);
+        console.log('process.env.NODE_ENV:', process.env.NODE_ENV);
 
         Db.query('SELECT version()')
-            .then(function (result){
-
-                console.log('database: ', result[0].version);
-                console.log(Chalk.green('================='));
+            .then((result) => {
+                
+                console.log('database:', result[0].version);
+                console.log(Chalk.cyan('================='));
             });
-
     });
-
 });
 

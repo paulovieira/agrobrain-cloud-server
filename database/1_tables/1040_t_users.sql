@@ -1,3 +1,19 @@
+DO $$
+
+DECLARE
+patch_exists int := _v.register_patch('premiere', 'initial database design');
+
+BEGIN
+
+IF patch_exists THEN
+    RETURN;
+END IF;
+
+
+
+/*** BEGIN CODE FOR CHANGES  ***/
+
+
 CREATE TABLE IF NOT EXISTS users(
 	id smallserial primary key,
 	email text unique not null,
@@ -14,6 +30,13 @@ CREATE TABLE IF NOT EXISTS users(
 
 );
 
---SELECT audit.audit_table('users');
+
+/*** END CODE FOR CHANGES  ***/
+
+
+
+END;
+$$;
+
 
 -- NOTE: the table contains a dummy user; it is used for events that don't below to any registered user/initiative;

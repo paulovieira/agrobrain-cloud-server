@@ -31,19 +31,6 @@ internals.phantomScript = Path.join(__dirname, "phantom.js");
 internals.db = new Datastore({ filename: Path.join(Config.get("rootDir"), "database", 'readings-new.json'), autoload: true });
 
 
-internals.aggSchema = Joi.object({
-    'id': Joi.number().integer().required(),
-    'mac': Joi.string().required(),
-    'sid': Joi.number().integer().required(),
-    'type': Joi.string().valid('t', 'h').required(),
-    'description': Joi.string().required(),
-    'avg': Joi.number().required(),
-    'stddev': Joi.number().required(),
-    'n': Joi.number().integer().required(),
-    'ts': Joi.string().required(),
-    'battery': Joi.number().allow([null])
-});
-
 internals.measurementsSchema = Joi.object({
     'id': Joi.number().integer().required(),
     'mac': Joi.string().required(),
@@ -73,10 +60,9 @@ exports.register = function (server, options, next){
 
             validate: {
                 query: {
-                    clientToken: Joi.string().required()
+                    clientToken: Joi.string().min(1).required()
                 },
                 payload: Joi.object({
-                    agg:          Joi.array().items(internals.aggSchema).required(),
                     measurements: Joi.array().items(internals.measurementsSchema).required(),
                     logState:     Joi.array().items(internals.logStateSchema).required()
                 })
@@ -89,11 +75,51 @@ exports.register = function (server, options, next){
             }
         },
 
-        handler: function(request, reply) {
+        handler: function (request, reply){
 
             //console.log('clientToken: ', request.query.clientToken)
             //console.log('payload: ', request.payload)
 
+
+            const clientCode = Utils.getClientCode(request.query.clientToken);
+
+            // parallel upsert queries
+            const sql = [];
+            sql.push(`select * from upsert_measurements(' ${ JSON.stringify(request.payload.measurements) } ')`);
+            sql.push(`select * from upsert_log_state('    ${ JSON.stringify(request.payload.logState) } ')`);
+
+            Promise.all(sql.map((s) => Db.query(s)))
+                .spread(function(measurements, logState){
+
+                    console.log(measurements, logState);
+
+                    return reply({ 
+                        measurements: measurements, 
+                        logState: logState, 
+                        ts: new Date()
+                    });
+/*
+                    // update payload in the wreck options (the other properties are the same)
+                    internals.wreckOptions.payload = undefined;
+                    internals.wreckOptions.payload = JSON.stringify({
+                        measurements: measurements,
+                        logState: logState 
+                    });
+
+                    return Wreck.putAsync(internals.syncPath, internals.wreckOptions);
+*/
+                    // TODO: promisify wreck; send data; handle response; handle error; 
+
+                })
+                .catch(function(err){
+
+                    console.log(Object.keys(err))
+                    Utils.logErr(err, ['sync']);
+                    return reply(err);
+                });
+
+
+/*
             Pg.connect(Config.get('db:postgres'), function (err, pgClient, done) {
 
                 let boom;
@@ -144,7 +170,9 @@ exports.register = function (server, options, next){
                     });
                 });
             });
-           
+*/
+
+
         }
     });
 
