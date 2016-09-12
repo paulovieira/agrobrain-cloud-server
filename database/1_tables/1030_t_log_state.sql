@@ -1,7 +1,7 @@
 DO $$
 
 DECLARE
-patch_exists int := _v.register_patch('premiere', 'initial database design');
+patch_exists int := _v.register_patch('premiere_XXXX', 'initial database design for XXXX');
 
 BEGIN
 
@@ -13,9 +13,10 @@ END IF;
 
 /*** BEGIN CODE FOR CHANGES  ***/
 
+-- this is a replica of the table in the local server
 
-create table if not exists t_log_state( 
-    id serial primary key,
+create table if not exists t_log_state_XXXX( 
+    id int primary key,
 
     event jsonb,
     ts_start timestamptz not null default now(),

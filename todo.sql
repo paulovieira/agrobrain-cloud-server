@@ -24,6 +24,4 @@ VALUES (
     coalesce( NULL, '{}'::text[] ),
     'initial database design');
 
-
-
-(update the script runner to take into account the patches - the patch should be per client)
+3) in t_log_state we changed id from "serial primary key" to just "int primary key"
