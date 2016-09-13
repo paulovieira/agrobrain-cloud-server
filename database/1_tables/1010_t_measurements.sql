@@ -1,7 +1,7 @@
 DO $$
 
 DECLARE
-patch_exists int := _v.register_patch('premiere_XXXX', 'initial database design for XXXX');
+patch_exists int := _v.register_patch('premiere-t_measurements-XXXX', 'initial database design for XXXX');
 
 BEGIN
 
@@ -9,10 +9,7 @@ IF patch_exists THEN
     RETURN;
 END IF;
 
-
-
 /*** BEGIN CODE FOR CHANGES  ***/
-
 
 /* 
 this is a replica of the table in the local server;
@@ -21,7 +18,7 @@ the difference to the respective table in the local server is that id is not ser
 (and also sync is json here while in local is just a bool, but that will change)
 */
 
-create table if not exists t_measurements_XXXX(
+create table t_measurements_XXXX(
 	id int primary key,
 
 	mac text not null,
@@ -36,11 +33,7 @@ create table if not exists t_measurements_XXXX(
     sync jsonb default '{}'
 );
 
-
-
 /*** END CODE FOR CHANGES  ***/
-
-
 
 END;
 $$;

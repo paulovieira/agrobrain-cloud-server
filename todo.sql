@@ -25,3 +25,6 @@ VALUES (
     'initial database design for XXXX');
 
 3) in t_log_state we changed id from "serial primary key" to just "int primary key"
+
+
+5) the port has been changed - we have to change nginx as well

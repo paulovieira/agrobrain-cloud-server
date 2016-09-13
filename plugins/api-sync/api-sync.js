@@ -36,16 +36,16 @@ internals.measurementsSchema = Joi.object({
     'mac': Joi.string().required(),
     'sid': Joi.number().integer().required(),
     'type': Joi.string().valid('t', 'h').required(),
-    'description': Joi.string().required(),
+    'description': Joi.string().allow('').required(),
     'val': Joi.number().required(),
     'ts': Joi.string().required(),
-    'battery': Joi.number().allow([null]),
-    'agg': Joi.boolean().required()
+    'battery': Joi.number().allow([null])
 });
 
 internals.logStateSchema = Joi.object({
     'id': Joi.number().integer().required(),
-    'event': Joi.any().required(),
+    'segment': Joi.string().valid('gpio', 'connectivity', 'cloud', 'system').required(),
+    'data': Joi.object().required(),
     'ts_start': Joi.string().required(),
     'ts_end': Joi.string().required()
 });
@@ -82,6 +82,16 @@ exports.register = function (server, options, next){
 
 
             const clientCode = Utils.getClientCode(request.query.clientToken);
+            if (!clientCode){
+                return reply(Boom.badRequest('invalid client code'));
+            }
+
+            // temporary code
+            return reply({ 
+                measurements: request.payload.measurements.map((obj) => obj.id), 
+                logState: request.payload.logState.map((obj) => obj.id), 
+                ts: new Date()
+            });
 
             // parallel upsert queries
             const sql = [];

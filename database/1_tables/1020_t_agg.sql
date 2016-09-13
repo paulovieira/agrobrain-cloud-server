@@ -14,7 +14,7 @@ END IF;
 /*** BEGIN CODE FOR CHANGES  ***/
 
 
-create table if not exists t_agg_XXXX(
+create table t_agg_XXXX(
     id int primary key,
     
     mac text not null,

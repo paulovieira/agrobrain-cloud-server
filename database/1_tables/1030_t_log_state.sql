@@ -1,7 +1,7 @@
 DO $$
 
 DECLARE
-patch_exists int := _v.register_patch('premiere_XXXX', 'initial database design for XXXX');
+patch_exists int := _v.register_patch('premiere-t_log_state-XXXX', 'initial database design for XXXX');
 
 BEGIN
 
@@ -9,13 +9,10 @@ IF patch_exists THEN
     RETURN;
 END IF;
 
-
-
 /*** BEGIN CODE FOR CHANGES  ***/
 
 -- this is a replica of the table in the local server
-
-create table if not exists t_log_state_XXXX( 
+create table t_log_state_XXXX( 
     id int primary key,
 
     event jsonb,
@@ -26,8 +23,6 @@ create table if not exists t_log_state_XXXX(
 );
 
 /*** END CODE FOR CHANGES  ***/
-
-
 
 END;
 $$;
