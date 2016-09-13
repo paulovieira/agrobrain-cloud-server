@@ -17,11 +17,11 @@ INSERT INTO _v.patches (
     conflicts,
     description )
 VALUES (
-    'premiere',
+    'premiere_XXXX',
     now(),
     current_user,
     coalesce( NULL, '{}'::text[] ),
     coalesce( NULL, '{}'::text[] ),
-    'initial database design');
+    'initial database design for XXXX');
 
 3) in t_log_state we changed id from "serial primary key" to just "int primary key"
