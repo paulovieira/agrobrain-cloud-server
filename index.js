@@ -44,8 +44,8 @@ const manifest = {
 
     connections: [
         {
-            address: Config.get('publicIp'),
-            port: Config.get('publicPort')
+            address: 'localhost',
+            port: Config.get('port')
         }
     ],
 
@@ -198,10 +198,10 @@ Glue.compose(manifest, glueOptions, function (err, server) {
 
 
     // start the server and finish the initialization process
+    Utils.setServer(server);
     server.start( function(err){
 
         Hoek.assert(!err, 'Failed server start: ' + err);
-        Utils.setServer(server);
         
         // show some basic informations about the server
         console.log(Chalk.cyan('================='));

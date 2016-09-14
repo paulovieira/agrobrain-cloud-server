@@ -38,33 +38,41 @@ exports.register = function (server, options, next){
     });
 
 
-    server.onSubscribe = function (socket, path, params, next2){
-
-        server.log(['api-commands', 'onSubscribe'], { socketId: socket.id, path: path });
-        return next2();
-    };
-
-    server.onUnsubscribe = function (socket, path, params){
-
-        server.log(['api-commands', 'onUnsubscribe'], { socketId: socket.id, path: path });
-    };
-
     server.subscription(internals.endpoints.commands, {
         filter: function (path, message, filterOptions, next2){
 
-            server.log(['api-commands', 'subscription (commands)', 'filter'], { socketId: filterOptions.socket.id, path: path });
+            server.log(['api-commands', 'subscription filter'], { socketId: filterOptions.socket.id, path: path });
             next2(true);
         },
-        auth: false
+        auth: false,
+        onSubscribe: function (socket, path, params, next2){
+
+            server.log(['api-commands', 'onSubscribe'], { path: path, socketId: socket.id });
+            return next2();
+        },
+        onUnsubscribe: function (socket, path, params){
+
+            server.log(['api-commands', 'onUnsubscribe'], { path: path, socketId: socket.id });
+        }
     });
+
 
     server.subscription(internals.endpoints.state, {
         filter: function (path, message, filterOptions, next3){
 
-            server.log(['api-commands', 'subscription (state)', 'filter'], { socketId: filterOptions.socket.id, path: path });
+            server.log(['api-commands', 'subscription filter'], { socketId: filterOptions.socket.id, path: path });
             next3(true);
         },
-        auth: false
+        auth: false,
+        onSubscribe: function (socket, path, params, next2){
+
+            server.log(['api-commands', 'onSubscribe'], { path: path, socketId: socket.id });
+            return next2();
+        },
+        onUnsubscribe: function (socket, path, params){
+
+            server.log(['api-commands', 'onUnsubscribe'], { path: path, socketId: socket.id });
+        }
     });
 
 
@@ -121,6 +129,7 @@ exports.register = function (server, options, next){
                 env: Config.get('env'),
                 websocketUrlBase: 'ws://' + Config.get('publicUrl')
             };
+
             return reply.view(Path.join(__dirname, 'templates/comando.html'), { ctx: context });
         }
     });
