@@ -76,7 +76,7 @@ exports.register = function (server, options, next){
     });
 
 
-    // called by the client on the rpi every 5 seconds
+    // the client in the rpi will continously send here updates of the gpio 
     server.route({
         path: '/api/v1/set-state',
         method: 'PUT',
