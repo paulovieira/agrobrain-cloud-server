@@ -1,7 +1,7 @@
 DO $$
 
 DECLARE
-patch_exists int := _v.register_patch('premiere_XXXX', 'initial database design for XXXX');
+patch_exists int := _v.register_patch('premiere-t_agg-XXXX', 'initial database design - XXXX');
 
 BEGIN
 
@@ -13,7 +13,7 @@ END IF;
 
 /*** BEGIN CODE FOR CHANGES  ***/
 
-
+/*
 create table t_agg_XXXX(
     id int primary key,
     
@@ -29,7 +29,7 @@ create table t_agg_XXXX(
     battery smallint,
     sync jsonb default '{}'
 );
-
+*/
 
 /*** END CODE FOR CHANGES  ***/
 

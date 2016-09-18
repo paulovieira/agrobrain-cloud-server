@@ -1,3 +1,7 @@
+/*
+TODO: the sql runner should execute the patches in alphabetical order, and also 
+take into account the dependencies and incompatibilities
+*/
 'use strict';
 
 require('../config/load');
@@ -31,86 +35,46 @@ internals.createPreRequisites = function (){
 internals.createTables = function (){
 
 	// temporary directory with random name
-    const tempDir = Path.join(__dirname, '__temp__' + String(Date.now()).substr(-6));
+    const tempDir = Path.join(__dirname, '__temp__' + String(Math.random()).substr(-6));
 
-	// "mkdir" method from fs-extra ("If the parent hierarchy doesn't exist, it's created. Like mkdir -p")
+	// method from fs-extra ("If the parent hierarchy doesn't exist, it's created. Like mkdir -p")
     Fs.mkdirsSync(tempDir);
 
-    const clientCodes = Config.get('clientTokens');
-    const clientCodesValues = [];
-    for (const key in clientCodes){
-        clientCodesValues.push(clientCodes[key]);
-    }
+    const clientTokens = Config.get('clientTokens')
+    const tokens = Object.keys(clientTokens).map((key) => clientTokens[key]);
 
-    Glob.sync('database/1_tables/*t_measurements.sql').forEach(function (scriptPath){
+    // add an 'empty token' to make sure there is 1 canonical version of the tables
+    // (it will be empty)
+    tokens.push('canonical');
+
+    Glob.sync('database/1_tables/*.sql').forEach(function (scriptPath){
 
         const script = Fs.readFileSync(scriptPath, 'utf8');
+        for (let i = 0; i < tokens.length; ++i){
 
-        // we want to make a replacement with the following pattern
-        const before = 'create table if not exists t_measurements(';
-        let after    = 'create table if not exists t_measurements_XXXX(';
+            // replace 'XXXX' with the correct code, write to a temporary file and call psql
+            const tempFilename = `${ Path.basename(scriptPath, '.sql') }_${ tokens[i] }.sql`;
+            const pathTempFilename = Path.join(tempDir, tempFilename);
+            let scriptReplaced;
+            
+            if (tokens[i] !== 'canonical'){
+                scriptReplaced = script.replace(/XXXX/g, tokens[i]);
+            }
+            else {
+                scriptReplaced = script.replace(/(_XXXX|XXXX|-XXXX)/g, '');
+            }
+      
+            Fs.writeFileSync(pathTempFilename, scriptReplaced);
 
-        for (let i = 0; i < clientCodesValues.length; ++i){
-            after = `create table if not exists t_measurements_${ clientCodesValues[i] }(`;
-        }
-
-        const tempFile = Path.join(tempDir, 't_measurements.sql');
-        Fs.writeFileSync(tempFile, script.replace(before, after));
-
-        try {
-            Psql({ file: tempFile });
-        }
-        catch (err){
-            process.exit();
+            try {
+                Psql({ file: pathTempFilename });
+            }
+            catch (err){
+                process.exit();
+            }
         }
     });
 
-    Glob.sync('database/1_tables/*t_agg.sql').forEach(function (scriptPath){
-
-        const script = Fs.readFileSync(scriptPath, 'utf8');
-
-        const before = 'create table if not exists t_agg(';
-        let after    = 'create table if not exists t_agg_XXXX(';
-
-        for (let i = 0; i < clientCodesValues.length; ++i){
-            after = `create table if not exists t_agg_${ clientCodesValues[i] }(`;
-        }
-
-        const tempFile = Path.join(tempDir, 't_agg.sql');
-        Fs.writeFileSync(tempFile, script.replace(before, after));
-
-        try {
-            Psql({ file: tempFile });
-        }
-        catch (err){
-            process.exit();
-        }
-    });
-
-    Glob.sync('database/1_tables/*t_log_state.sql').forEach(function (scriptPath){
-
-        const script = Fs.readFileSync(scriptPath, 'utf8');
-
-        const before = 'create table if not exists t_log_state(';
-        let after    = 'create table if not exists t_log_state_XXXX(';
-
-        for (let i = 0; i < clientCodesValues.length; ++i){
-            after = `create table if not exists t_log_state_${ clientCodesValues[i] }(`;
-        }
-
-        const tempFile = Path.join(tempDir, 't_log_state.sql');
-        Fs.writeFileSync(tempFile, script.replace(before, after));
-
-        try {
-            Psql({ file: tempFile });
-        }
-        catch (err){
-            process.exit();
-        }
-
-    });
-
-    // "remove" method from fs-extra ("directory can have contents")
     //Fs.removeSync(tempDir);
 
 };
@@ -138,8 +102,8 @@ Psql.configure({
 });
 
 internals.createPreRequisites();
-//internals.createTables();
-//internals.createFunctions();
+internals.createTables();
+internals.createFunctions();
 
-//console.log(Chalk.green.bold('\nsql scripts ran successfully!'));
-console.log(Chalk.red.bold('\nSEE TODO!'));
+console.log(Chalk.green.bold('\nsql scripts ran successfully!'));
+

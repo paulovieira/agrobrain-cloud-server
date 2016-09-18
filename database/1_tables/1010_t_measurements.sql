@@ -1,7 +1,7 @@
 DO $$
 
 DECLARE
-patch_exists int := _v.register_patch('premiere-t_measurements-XXXX', 'initial database design for XXXX');
+patch_exists int := _v.register_patch('premiere-t_measurements-XXXX', 'initial database design - XXXX');
 
 BEGIN
 
@@ -37,3 +37,29 @@ create table t_measurements_XXXX(
 
 END;
 $$;
+
+
+
+
+DO $$
+
+DECLARE
+patch_exists int := _v.register_patch('160916-1-XXXX', 'drop the column "agg" in t_measurements - XXXX');
+
+BEGIN
+
+IF patch_exists THEN
+    RETURN;
+END IF;
+
+/*** BEGIN CODE FOR CHANGES  ***/
+
+alter table t_measurements_XXXX
+drop column agg cascade;
+
+/*** END CODE FOR CHANGES  ***/
+
+END;
+$$;
+
+

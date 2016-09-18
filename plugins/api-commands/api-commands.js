@@ -78,7 +78,7 @@ exports.register = function (server, options, next){
 
     // called by the client on the rpi every 5 seconds
     server.route({
-        path: '/api/v1/set-state',
+        path: internals.endpoints.state,
         method: 'PUT',
         config: {
             validate: {
@@ -100,7 +100,7 @@ exports.register = function (server, options, next){
 
     // called by the client with the user interface to change the command
     server.route({
-        path: '/api/v1/set-command',
+        path: internals.endpoints.commands,
         method: 'PUT',
         config: {
             validate: {
