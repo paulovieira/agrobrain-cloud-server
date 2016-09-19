@@ -46,7 +46,6 @@ ALTER TABLE t_log_state_0002 RENAME TO t_log_state_0002_old;
 
 
 SELECT c.relname FROM pg_class c WHERE c.relkind = 'S';
-
 DROP SEQUENCE name;
 
 4) execute the script runner - 

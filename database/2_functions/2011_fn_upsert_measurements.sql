@@ -5,7 +5,10 @@ AS $$
 
 DECLARE
 new_row t_measurements%rowtype;
-command text;
+query text;
+
+-- variables for input data
+_client_code text;
 
 BEGIN
 
@@ -13,36 +16,42 @@ IF  jsonb_typeof(data) = 'object' THEN
     data := jsonb_build_array(data);
 END IF;
 
+_client_code := coalesce(options->>'clientCode', 'XXXX');
+
+query := $_$
+    /* begin dynamic query */
+
+   insert into %I(
+        id,
+        mac, 
+        sid,
+        type,
+        description,
+        val,
+        ts,
+        battery
+    )
+    values ($1, $2, $3, $4, $5, $6, $7, $8)
+    on conflict (id) do update set
+        id          = excluded.id,
+        mac         = excluded.mac,
+        sid         = excluded.sid,
+        type        = excluded.type,
+        description = excluded.description,
+        val         = excluded.val,
+        ts          = excluded.ts,
+        battery     = excluded.battery
+    returning *; 
+
+    /* end dynamic query */
+$_$;
+
+-- use specific table
+query := format(query, 't_measurements_' || _client_code);
+
 for new_row in (select * from jsonb_populate_recordset(null::t_measurements, data)) loop
 
-
-    command := format('
-        insert into %I(
-            id,
-            mac, 
-            sid,
-            type,
-            description,
-            val,
-            ts,
-            battery
-        )
-        values ($1, $2, $3, $4, $5, $6, $7, $8)
-        on conflict (id) do update set
-            id          = excluded.id,
-            mac         = excluded.mac,
-            sid         = excluded.sid,
-            type        = excluded.type,
-            description = excluded.description,
-            val         = excluded.val,
-            ts          = excluded.ts,
-            battery     = excluded.battery
-        returning *; 
-    ',
-    't_measurements_' || (options->>'clientCode')::text
-    );
-
-    execute command
+    execute query
         into strict new_row
         using 
             new_row.id,
@@ -53,7 +62,6 @@ for new_row in (select * from jsonb_populate_recordset(null::t_measurements, dat
             new_row.val,
             new_row.ts,
             new_row.battery;
-
 
     return next new_row;
 
@@ -70,7 +78,7 @@ LANGUAGE plpgsql;
 
 select * from upsert_measurements(' 
   {
-    "id": 9999,
+    "id": 999999,
     "mac": "xx-aa",
     "sid": 123,
     "type": "h",
@@ -86,7 +94,7 @@ select * from upsert_measurements('
 
 select * from upsert_measurements('[
   {
-    "id": 8888,
+    "id": 888888,
     "mac": "xx-aa",
     "sid": 123,
     "type": "h",
@@ -96,7 +104,7 @@ select * from upsert_measurements('[
     "battery": null
   },
   {
-    "id": 8889,
+    "id": 888889,
     "mac": "xx-bb",
     "sid": 124,
     "type": "h",
