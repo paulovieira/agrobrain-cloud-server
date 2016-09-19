@@ -82,10 +82,12 @@
     	var command = $(e.target).data('command');
 
         const options = {
-            path: '/api/v1/set-command',
+            path: '/api/v1/commands',
             method: 'PUT',
             payload: JSON.stringify({ command: command })
         };
+
+        console.log(options.payload)
 
         internals.client.request(options, function (err, serverPayload, statusCode){
         	//debugger;

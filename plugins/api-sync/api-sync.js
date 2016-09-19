@@ -3,13 +3,12 @@
 const Path = require('path');
 const Config = require('nconf');
 const Datastore = require('nedb');
-const Pg = require('pg');
 const Joi = require('joi');
 const Boom = require('boom');
 //const _ = require('underscore');
 const Utils = require('../../utils/util');
 const Sql = require('./sql-templates');
-
+const Db = require('../../database');
 
 
 //const Promise = require('bluebird');
@@ -21,12 +20,16 @@ const execAsync = Promise.promisify(require('child_process').exec, {multiArgs: t
 
 const internals = {};
 
-internals['oneHour'] = 60*60*1000;
-internals['oneDay'] = 24*60*60*1000;
+internals['oneHour'] = 60 * (60 * 1000);
+internals['oneDay'] = 24 * 60 * (60 * 1000);
 
-internals.cacheInterval = 5*60*1000;  // 5 minutes
+internals.cacheInterval = 5 * (60 * 1000);  // 5 minutes
 //internals.cacheInterval = 10*1000;  // 10 seconds
 internals.phantomScript = Path.join(__dirname, "phantom.js");  
+
+internals.idProjection = function(obj){
+    return { id: obj.id };
+};
 
 internals.db = new Datastore({ filename: Path.join(Config.get("rootDir"), "database", 'readings-new.json'), autoload: true });
 
@@ -35,8 +38,8 @@ internals.measurementsSchema = Joi.object({
     'id': Joi.number().integer().required(),
     'mac': Joi.string().required(),
     'sid': Joi.number().integer().required(),
-    'type': Joi.string().valid('t', 'h').required(),
-    'description': Joi.string().allow('').required(),
+    'type': Joi.string().required(),
+    'description': Joi.string().allow(['', null]).required(),
     'val': Joi.number().required(),
     'ts': Joi.string().required(),
     'battery': Joi.number().allow([null])
@@ -44,7 +47,7 @@ internals.measurementsSchema = Joi.object({
 
 internals.logStateSchema = Joi.object({
     'id': Joi.number().integer().required(),
-    'segment': Joi.string().valid('gpio', 'connectivity', 'cloud', 'system').required(),
+    'segment': Joi.string().min(1).required(),
     'data': Joi.object().required(),
     'ts_start': Joi.string().required(),
     'ts_end': Joi.string().required()
@@ -77,115 +80,49 @@ exports.register = function (server, options, next){
 
         handler: function (request, reply){
 
-            //console.log('clientToken: ', request.query.clientToken)
-            //console.log('payload: ', request.payload)
-
-
             const clientCode = Utils.getClientCode(request.query.clientToken);
             if (!clientCode){
                 return reply(Boom.badRequest('invalid client code'));
             }
 
-            // temporary code
-            return reply({ 
-                measurements: request.payload.measurements.map((obj) => obj.id), 
-                logState: request.payload.logState.map((obj) => obj.id), 
-                ts: new Date()
-            });
-
             // parallel upsert queries
             const sql = [];
-            sql.push(`select * from upsert_measurements(' ${ JSON.stringify(request.payload.measurements) } ')`);
-            sql.push(`select * from upsert_log_state('    ${ JSON.stringify(request.payload.logState) } ')`);
+
+            sql.push(`
+                select * from upsert_measurements(
+                    '${ JSON.stringify(request.payload.measurements) }',
+                    '${ JSON.stringify({ clientCode: clientCode }) }'
+                )
+            `);
+
+            sql.push(`
+                select * from upsert_log_state(
+                    '${ JSON.stringify(request.payload.logState) }',
+                    '${ JSON.stringify({ clientCode: clientCode }) }'
+                )
+            `);
+
+            //console.log("sql:\n", sql)
 
             Promise.all(sql.map((s) => Db.query(s)))
-                .spread(function(measurements, logState){
+                .spread(function (measurements, logState){
 
-                    console.log(measurements, logState);
+                    //console.log(measurements, logState);
 
                     return reply({ 
-                        measurements: measurements, 
-                        logState: logState, 
-                        ts: new Date()
+                        measurements: measurements.map(internals.idProjection), 
+                        logState: logState.map(internals.idProjection)
+                        //ts: new Date()
                     });
-/*
-                    // update payload in the wreck options (the other properties are the same)
-                    internals.wreckOptions.payload = undefined;
-                    internals.wreckOptions.payload = JSON.stringify({
-                        measurements: measurements,
-                        logState: logState 
-                    });
-
-                    return Wreck.putAsync(internals.syncPath, internals.wreckOptions);
-*/
-                    // TODO: promisify wreck; send data; handle response; handle error; 
 
                 })
-                .catch(function(err){
+                .catch(function (err){
 
-                    console.log(Object.keys(err))
-                    Utils.logErr(err, ['sync']);
+                    Utils.logErr(err, ['api-sync']);
                     return reply(err);
                 });
-
-
-/*
-            Pg.connect(Config.get('db:postgres'), function (err, pgClient, done) {
-
-                let boom;
-                if (err) {
-                    boom = Boom.badImplementation();
-                    boom.output.payload.message = err.message;
-                    return reply(boom);
-                }
-
-                const clientCode = Utils.getClientCode(request.query.clientToken);
-
-                pgClient.query(Sql.upsertAgg(clientCode, request.payload.agg), function (err, result) {
-
-                    if (err) {
-                        boom = Boom.badImplementation();
-                        boom.output.payload.message = err.message;
-                        done();
-                        return reply(boom);
-                    }
-
-                    pgClient.query(Sql.upsertMeasurements(clientCode, request.payload.measurements), function (err2, result2) {
-
-                        if (err2) {
-                            boom = Boom.badImplementation();
-                            boom.output.payload.message = err2.message;
-                            return reply(boom);
-                        }
-
-                        pgClient.query(Sql.upsertLogState(clientCode, request.payload.logState), function (err3, result3) {
-
-                            done();
-
-                            if (err3) {
-                                Utils.logErr(err3, ['query']);
-                                boom = Boom.badImplementation();
-                                boom.output.payload.message = err3.message;
-                                return reply(boom);
-                            }
-
-                            return reply({ 
-                                agg: result.rows, 
-                                measurements: result2.rows, 
-                                logState: result3.rows, 
-                                ts: new Date().toISOString() 
-                            });
-                        });
-
-                    });
-                });
-            });
-*/
-
-
         }
     });
-
 
     // example: /show-readings-new?client=permalab&table=agg&age=24
     // example: /show-readings-new?client=permalab&table=measurements&age=24
@@ -205,35 +142,32 @@ exports.register = function (server, options, next){
         handler: function (request, reply) {
 
             const clientCode = Utils.getClientCode(request.query.client);
+            if (!clientCode){
+                return reply(Boom.badRequest('invalid client'));
+            }
 
-            Pg.connect(Config.get('db:postgres'), function (err, pgClient, done) {
+            const query = Sql.getRecords(clientCode, request.query.table, request.query.age);
+            console.log(query)
 
-                let boom;
-                if (err) {
-                    boom = Boom.badImplementation();
-                    boom.output.payload.message = err.message;
-                    return reply(boom);
-                }
+            Db.query(query)
+                .then(function (data){
 
-                pgClient.query(Sql.getRecords(clientCode, request.query.table, request.query.age), function (err, result) {
-
-                    done();
-
-                    if (err) {
-                        boom = Boom.badImplementation();
-                        boom.output.payload.message = err.message;
-                        return reply(boom);
-                    }
-
-                    result.rows.forEach((obj) => {
+                    data.forEach((obj) => {
 
                         obj.ts = obj.ts.toISOString().slice(0, -5);
                     });
 
-                    return reply(Utils.jsonMarkup(result.rows));
+                    return reply(Utils.jsonMarkup(data));
 
+
+
+                })
+                .catch(function (err){
+
+                    Utils.logErr(err, ['show-readings-new']);
+                    return reply(err);
                 });
-            });
+
         }
     });
 

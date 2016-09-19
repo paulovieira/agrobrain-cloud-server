@@ -3,6 +3,8 @@
 require('./config/load');
 require('./config/promisify');
 
+const Fs = require('fs');
+const Path = require('path');
 const Config = require('nconf');
 const Glue = require('glue');
 const Hoek = require('hoek');
@@ -173,14 +175,26 @@ const manifest = {
 
 const glueOptions = {
     relativeTo: __dirname,
+
+    // called prior to registering plugins with the server
     preRegister: function (server, next){
 
-        //console.log('[glue]: executing preRegister (called prior to registering plugins with the server)');
+        // make sure the logs directory exists
+        try {
+            Fs.mkdirSync(Path.join(Config.get('rootDir'), 'logs'));    
+        }
+        catch (err){
+            if (err.code !== 'EEXIST'){
+                throw err;
+            }
+        }
+
         next();
     },
+
+    // called prior to adding connections to the server
     preConnections: function (server, next){
 
-        //console.log('[glue]: executing preConnections (called prior to adding connections to the server)');
         next();
     }
 };
@@ -189,9 +203,9 @@ Glue.compose(manifest, glueOptions, function (err, server) {
 
     Hoek.assert(!err, 'Failed registration of one or more plugins: ' + err);
 
-    server.app.meteoCache = server.cache({ segment: 'meteo', expiresIn: 10*1000 });
+    server.app.meteoCache = server.cache({ segment: 'meteo', expiresIn: 10 * 1000 });
 
-    server.app.meteoCache.getAsync = Bluebird.promisify(server.app.meteoCache.get, {multiArgs: true});
+    server.app.meteoCache.getAsync = Bluebird.promisify(server.app.meteoCache.get, { multiArgs: true });
     server.app.meteoCache.setAsync = Bluebird.promisify(server.app.meteoCache.set);
 
 //    server.app.meteoCache.getAsync = Bluebird.promisify(server.cache({ segment: 'meteo', expiresIn: 10*1000 }), {multiArgs: true});
@@ -199,7 +213,7 @@ Glue.compose(manifest, glueOptions, function (err, server) {
 
     // start the server and finish the initialization process
     Utils.setServer(server);
-    server.start( function(err){
+    server.start( function (err){
 
         Hoek.assert(!err, 'Failed server start: ' + err);
         
