@@ -7,7 +7,6 @@ const Joi = require('joi');
 const Boom = require('boom');
 //const _ = require('underscore');
 const Utils = require('../../utils/util');
-const Sql = require('./sql-templates');
 const Db = require('../../database');
 
 
@@ -124,52 +123,6 @@ exports.register = function (server, options, next){
         }
     });
 
-    // example: /show-readings-new?client=permalab&table=agg&age=24
-    // example: /show-readings-new?client=permalab&table=measurements&age=24
-    server.route({
-        path: '/show-readings-new',
-        method: 'GET',
-        config: {
-            validate: {
-                query: {
-                    'client': Joi.string().required(),
-                    'table': Joi.string().valid('agg', 'measurements').required(),
-                    'age': Joi.number().integer().required()
-
-                }
-            }
-        },
-        handler: function (request, reply) {
-
-            const clientCode = Utils.getClientCode(request.query.client);
-            if (!clientCode){
-                return reply(Boom.badRequest('invalid client'));
-            }
-
-            const query = Sql.getRecords(clientCode, request.query.table, request.query.age);
-            console.log(query)
-
-            Db.query(query)
-                .then(function (data){
-
-                    data.forEach((obj) => {
-
-                        obj.ts = obj.ts.toISOString().slice(0, -5);
-                    });
-
-                    return reply(Utils.jsonMarkup(data));
-
-
-
-                })
-                .catch(function (err){
-
-                    Utils.logErr(err, ['show-readings-new']);
-                    return reply(err);
-                });
-
-        }
-    });
 
     return next();
 };

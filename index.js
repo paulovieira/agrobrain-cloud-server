@@ -101,6 +101,14 @@ const manifest = {
             options: {}
         },
 
+        {
+            plugin: {
+                register: 'hapi-qs',
+                options: {}
+            },
+            options: {}
+        },
+
         // {
         //     plugin: {
         //         register: "./server/routes-websocket/routes-websocket.js",

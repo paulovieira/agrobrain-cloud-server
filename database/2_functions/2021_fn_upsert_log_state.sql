@@ -1,7 +1,7 @@
 
 CREATE OR REPLACE FUNCTION upsert_log_state(data jsonb, options jsonb)
 RETURNS SETOF t_log_state
-AS $$
+AS $fn$
 
 DECLARE
 new_row t_log_state%rowtype;
@@ -18,7 +18,7 @@ END IF;
 
 _client_code := coalesce(options->>'clientCode', 'XXXX');
 
-query := $_$
+query := $$
     /* begin dynamic query */
 
     insert into %I(
@@ -38,7 +38,7 @@ query := $_$
     returning *; 
 
     /* end dynamic query */
-$_$;
+$$;
 
 -- use specific table
 query := format(query, 't_log_state_' || _client_code);
@@ -61,7 +61,7 @@ end loop;
 return;
 
 END;
-$$
+$fn$
 LANGUAGE plpgsql;
 
 

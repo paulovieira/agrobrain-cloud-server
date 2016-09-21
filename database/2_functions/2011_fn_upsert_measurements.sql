@@ -1,7 +1,7 @@
 
 CREATE OR REPLACE FUNCTION upsert_measurements(data jsonb, options jsonb)
 RETURNS SETOF t_measurements
-AS $$
+AS $fn$
 
 DECLARE
 new_row t_measurements%rowtype;
@@ -18,7 +18,7 @@ END IF;
 
 _client_code := coalesce(options->>'clientCode', 'XXXX');
 
-query := $_$
+query := $$
     /* begin dynamic query */
 
    insert into %I(
@@ -44,7 +44,7 @@ query := $_$
     returning *; 
 
     /* end dynamic query */
-$_$;
+$$;
 
 -- use specific table
 query := format(query, 't_measurements_' || _client_code);
@@ -70,7 +70,7 @@ end loop;
 return;
 
 END;
-$$
+$fn$
 LANGUAGE plpgsql;
 
 
