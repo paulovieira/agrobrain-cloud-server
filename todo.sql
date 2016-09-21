@@ -59,10 +59,3 @@ DROP SEQUENCE name;
 5) the port has been changed - we have to change nginx as well
 
 
-
---
-
-run scripts, it will create the tables for 'test' client (0003)
-create the sequence:
-CREATE SEQUENCE seq_test_hackathon START 1;
-
