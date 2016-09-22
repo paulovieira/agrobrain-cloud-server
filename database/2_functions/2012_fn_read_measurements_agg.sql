@@ -75,13 +75,14 @@ select
 
 /*
 		json_build_object(
-			'key', mac || '_' || sid || '_' || type, 
+			'key', mac || ':' || sid || ':' || type, 
 			'val_avg', val_avg
 		)
 */
 
 		-- note that the 'key' property is formed by a combination of (mac, sid, type), 
-		-- which identifies uniquely the location of the measurement
+		-- which identifies uniquely the location of the measurement; that is, it will
+		-- be something like "18-fe-34-d3-83-85:2:t"
 
 	) as data
 from agg_by_time
@@ -97,7 +98,7 @@ IF _stddev = true THEN
 json_build_object := $$
 
 			json_build_object(
-				'key', mac || '_' || sid || '_' || type, 
+				'key', mac || ':' || sid || ':' || type, 
 				'val_avg', val_avg, 
 				'val_count', val_count,
 				'val_stddev', val_stddev
@@ -110,7 +111,7 @@ ELSE
 json_build_object := $$
 
 			json_build_object(
-				'key', mac || '_' || sid || '_' || type,
+				'key', mac || ':' || sid || ':' || type,
 				'val_avg', val_avg
 			)
 

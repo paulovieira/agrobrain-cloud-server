@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link href="/public/lib/bootstrap/3.3.5/css/bootstrap.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <div class="container">
+        <div class="jumbotron" style="margin-top: 20px;">
+            <h1>Spinon is arriving - almost there!</h1>
+            
+            <p>
+                Dowload das leituras
+
+                <div class="row">
+                    <div class="col-sm-3">
+                        início<br>
+                        <input id="start" type="date"  />
+                    </div>
+
+                    <div class="col-sm-3">
+                        fim<br>
+                        <input id="end" type="date" />
+                    </div>
+
+                    <div class="col-sm-3">
+
+                        formato
+                        <select id='format' class="form-control">
+                            <option value='csv'>csv (download)</option>
+                            <option value='json'>json</option>
+                        </select>
+
+                    </div>
+
+                    <div class="col-sm-3">
+
+                        intervalo (média dos valores de x em x horas)
+                        <select id='timeInterval' class="form-control">
+                          <option  value='1'>1</option>
+                          <option  value='2'>2</option>
+                          <option  value='3'>3</option>
+                          <option  value='4'>4</option>
+                          <option  value='6'>6</option>
+                          <option  value='12'>12</option>
+                          <option  value='24'>24</option>
+                        </select>
+
+                    </div>
+
+                </div>
+            </p>
+
+            
+            <p>
+            <a class="btn btn-lg btn-success" id="get-measurements" href="#" role="button">Obter leituras</a>
+            &nbsp;&nbsp;
+
+        </div>
+    </div>
+    <script src="/public/lib/jquery/jquery-1.11.2.js"></script>
+    <script src="/public/lib/fecha-2.1.0.js"></script>
+
+    
+    <script>
+    $('#get-measurements').on('click', function(){
+
+        var start = $('#start').val()
+        var end = $('#end').val()
+        var timeInterval = $('#timeInterval').val()
+        var format = $('#format').val();
+
+        console.log(format)
+        console.log(timeInterval)
+        console.log(start)
+        console.log(end)
+
+        if(!start || !end){
+            alert('escolha as datas')
+            return;
+        }
+
+        // make sure the format of the dates is good
+        start = fecha.format(new Date(start), 'YYYY-MM-DD');
+        end = fecha.format(new Date(end), 'YYYY-MM-DD');
+
+        var href = '/api/v1/measurements-agg?clientName=permalab&start=' + start + '&end=' + end + '&timeInterval=' + timeInterval + '&format=' + format;
+        window.location.href = href;
+    });
+    </script
+</body>
+
+</html>

@@ -162,6 +162,14 @@ const manifest = {
 
         {
             plugin: {
+                register: './plugins/api-measurements-agg/api-measurements-agg.js',
+                options: {}
+            },
+            options: {}
+        },
+
+        {
+            plugin: {
                 register: './plugins/api-sync/api-sync.js',
                 options: {}
             },
