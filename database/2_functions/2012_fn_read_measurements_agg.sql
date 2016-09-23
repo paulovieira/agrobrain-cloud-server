@@ -13,6 +13,7 @@ DECLARE
 query text;
 json_build_object text;
 
+
 -- variables for input data
 _client_code text;
 _time_interval int;
@@ -29,6 +30,7 @@ _time_interval := COALESCE((options->>'timeInterval')::int, 1);
 _ts_start      := COALESCE((options->>'start')::timestamptz, '2000-01-01');
 _ts_end        := COALESCE((options->>'end')::timestamptz,   '2000-01-01');
 _stddev        := COALESCE((options->>'stddev')::bool, false);
+
 
 -- the main query starts here
 
@@ -50,14 +52,14 @@ with agg_by_time as (
 
 	where
 		val > (case 
-			when type = 't' then -10
-			when type = 'h' then -1
+			when type = 't' then 0  /* min temperature */
+			when type = 'h' then -5  /* min humidity */
 			else -99999
 			end)
 		and 
 		val < (case 
-			when type = 't' then 60
-			when type = 'h' then 101
+			when type = 't' then 50  /* max temperature */
+			when type = 'h' then 110  /* max humidity */
 			else 99999
 			end)
 		and ts >= $1 and ts <= $2
