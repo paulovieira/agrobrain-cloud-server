@@ -1,0 +1,18 @@
+<div class="row">
+    <div class="col-lg-3 col-sm-6">
+        <div class="card card-circle-chart" data-background="color" data-color="orange">
+            <div class="header text-center">
+                <h5 class="title">{{ 'Ligado' if on else 'Desligado'  }}</h5>
+                <p class="description">{{ name }}</p>
+            </div>
+            <div class="content">
+                <div data-pivot-chart="true" class="chart-circle" data-percent="34">{{ irrigation.timeElapsed[0] }}h {{ irrigation.timeElapsed[1] }}min
+                </div>
+                <div>
+                    Tempo restante: {{ irrigation.timeToFinish[0] }}h {{ irrigation.timeToFinish[1] }}m
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

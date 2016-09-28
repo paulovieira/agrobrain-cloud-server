@@ -59,3 +59,7 @@ DROP SEQUENCE name;
 5) the port has been changed - we have to change nginx as well
 
 
+
+
+160923
+-reinstall all node modules

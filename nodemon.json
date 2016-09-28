@@ -3,6 +3,8 @@
     "delay": 200,
 	"ignore": [
         "node_modules/*",
+        "plugins/dashboard/app/*",
         "database/readings-test.json"
     ]
 }
+

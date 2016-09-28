@@ -1,0 +1,172 @@
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card card-circle-chart" data-background="color" data-color="blue">
+            <div class="header text-center">
+                <h5 class="title">Ligado</h5>
+                <p class="description">Campo das faias</p>
+            </div>
+
+
+            <div class="content">
+                <div data-pivot-chart="true" class="chart-circle" data-percent="34">{{ irrigation.timeElapsed[0] }}h {{ irrigation.timeElapsed[1] }}min
+                </div>
+                <div>
+                    Tempo restante: {{ irrigation.timeToFinish[0] }}h {{ irrigation.timeToFinish[1] }}m
+                </div>
+            </div>
+
+
+
+{#
+            <div class="content">
+                <div id="chartDashboard" class="chart-circle" data-percent="90">5h 32min</div>
+            </div>
+  #}
+
+            <div class="card-footer text-center">
+                <button class="btn btn-default btn-fill" onclick="demo.showSwal('warning-message-and-cancel')">Desligar rega
+                <i class="fa fa-camera-retro fa-lg"></i> fa-lg
+                </button>
+            </div>
+        </div>
+    </div>  
+    
+    
+    <div class="col-md-3">
+        <div class="card card-circle-chart" data-background="color" data-color="orange">
+            <div class="header text-left">
+                <h5 class="title">Lisboa<br/>
+                <small class="description">16 de Novembro</small></h5>
+            </div>
+            <div class="content text-center">
+                <h1>
+                    <i class="wi wi-day-cloudy"></i> 25ºC
+                </h1>
+                <div class="row">
+                  <div class="col-md-4"><i class="wi wi-moon-waxing-crescent-6" style="font-size:26px;"></i></div>
+                  <div class="col-md-4"><i class="wi wi-wind-beaufort-6" style="font-size:26px;"></i></div>
+                  <div class="col-md-4">12º/26º</div>
+                </div>
+                    
+                        
+
+                        
+                            
+                
+                <hr>
+                <div class="row">
+                        <div class="col-md-4 text-left">
+                            17 Nov.
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <i class="wi wi-day-sunny" style="font-size:26px;"></i>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            15º/24º
+                        </div>
+                    </div>
+                <hr>
+                <div class="row">
+                        <div class="col-md-4 text-left">
+                            18 Nov.
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <i class="wi wi-day-rain" style="font-size:26px;"></i>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            15º/24º
+                        </div>
+                    </div>
+                
+                        
+                        
+                        
+            </div>
+        </div>  
+    </div>
+    <div class="col-md-6">
+        <div class="card ">
+            <div class="header">
+                <h4 class="title">Últimas 24 horas</h4>
+                <p class="category">Campo das faias</p>
+            </div>
+            <div class="content">
+                <div id="chartActivity" class="ct-chart"></div>
+            </div>
+            <div class="card-footer">
+                <div class="chart-legend">
+                    <i class="fa fa-circle text-info"></i> Evapotranspiração
+                    <i class="fa fa-circle text-warning"></i> Potencial hídrico
+                </div>
+                
+                
+            </div>
+        </div>
+    </div>
+
+            
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="header">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 class="title">Assuma o controlo!!</h4>
+                    </div>
+                    <div class="col-md-6 text-right">   
+                        <button class="btn btn-danger btn-fill btn-wd" data-toggle="modal" data-target="#myControl">Adicionar nova acção</button>
+                        
+
+                    </div>  
+                </div>                              
+            </div>
+            <div class="content table-responsive table-full-width">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>Descrição</th>
+                            <th>Estado</th>
+                            <th class="text-right">Tipo</th>
+                            <th class="text-right">Acções</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center">1</td>
+                            <td>Desligar a rega após 3h</td>
+                            <td><input type="checkbox" checked data-toggle="switch" class="ct-primary"/></td>
+                            <td class="text-right">Regra</td>
+                            <td class="td-actions text-right">
+                                
+                                <a href="#" rel="tooltip" title="Editar" class="btn btn-success btn-simple btn-xs">
+                                    <i class="ti-pencil-alt"></i>
+                                </a>
+                                <a href="#" rel="tooltip" title="Remover" class="btn btn-danger btn-simple btn-xs">
+                                    <i class="ti-close"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">2</td>
+                            <td>Enviar um sms quando o potencial hídrico for menor que 7</td>
+                            <td><input type="checkbox" data-toggle="switch"/></td>
+                            <td class="text-right">Alerta</td>
+                            <td class="td-actions text-right">
+                                
+                                <a href="#" rel="tooltip" title="Editar" class="btn btn-success btn-simple btn-xs">
+                                    <i class="ti-pencil-alt"></i>
+                                </a>
+                                <a href="#" rel="tooltip" title="Remover" class="btn btn-danger btn-simple btn-xs">
+                                    <i class="ti-close"></i>
+                                </a>
+                            </td>
+                        </tr>                                           
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+                                        

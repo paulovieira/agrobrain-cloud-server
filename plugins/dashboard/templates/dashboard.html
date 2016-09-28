@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>H2Optimum</title>
+
+    <style>
+
+        
+    </style>
+
+    <link href='https://fonts.googleapis.com/css?family=Muli:400,300' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+
+
+    <div class="wrapper">
+    </div>
+
+
+    {# container for modal     #}
+    <div class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content mn-r-modal-contents">
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+    window.ctx = {{ ctx | stringify }}
+    </script>
+
+    {% if NODE_ENV == 'dev' %}
+
+    <script src="http://localhost:8081/WEBPACK_DEV_SERVER/{{ manifest }}"></script>
+    <script src="http://localhost:8081/WEBPACK_DEV_SERVER/{{ libBuild }}"></script>
+    <script src="http://localhost:8081/WEBPACK_DEV_SERVER/{{ appBuild }}"></script>
+
+    {% else %}
+
+    <script src="/dashboard-app/_build/{{ manifest }}"></script>
+    <script src="/dashboard-app/_build/{{ libBuild }}"></script>
+    <script src="/dashboard-app/_build/{{ appBuild }}"></script>
+
+    {% endif %}
+
+
+</body>
+
+</html>

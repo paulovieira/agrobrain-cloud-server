@@ -182,6 +182,14 @@ const manifest = {
                 options: {}
             },
             options: {}
+        },
+
+        {
+            plugin: {
+                register: './plugins/dashboard/dashboard.js',
+                options: {}
+            },
+            options: {}
         }
     ]
 
