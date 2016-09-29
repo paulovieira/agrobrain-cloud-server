@@ -43,8 +43,9 @@ internals.createTables = function (){
     const clientTokens = Config.get('clientTokens')
     const tokens = Object.keys(clientTokens).map((key) => clientTokens[key]);
 
-    // add an 'empty token' to make sure there is 1 canonical version of the tables
-    // (it will be empty)
+    // the 'canonical' token will result in having a canonical version of the tables, that is:
+    // - the table names will not have a suffix
+    // - they will be empty
     tokens.push('canonical');
 
     Glob.sync('database/1_tables/*.sql').forEach(function (scriptPath){
