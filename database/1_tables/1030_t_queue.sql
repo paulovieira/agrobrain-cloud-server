@@ -11,7 +11,7 @@ END IF;
 
 /*** BEGIN CODE FOR CHANGES  ***/
 
-create type job_types as enum ('irrigation_on', 'irrigation_off');
+
 
 create table t_queue_XXXX( 
     id int primary key,

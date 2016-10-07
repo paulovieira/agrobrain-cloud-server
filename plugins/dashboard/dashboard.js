@@ -4,7 +4,7 @@ const Path = require('path');
 const ChildProcess = require('child_process');
 const Fs = require('fs-extra');
 const Config = require('nconf');
-
+const Promise = require('bluebird');
 const Nunjucks = require('hapi-nunjucks');
 const Boom = require('boom');
 const Glob = require('glob');
@@ -122,19 +122,31 @@ exports.register = function(server, options, next){
         config: {
             handler: function(request, reply) {
 
-                const file = './test-model/input1.csv';
-                var converter = new Converter({});
-                converter.fromFile(Path.join(__dirname, file), function (err, data){
+                const file1 = './test-model/input-1.csv';
+                const file2 = './test-model/input-2.csv';
 
-                    var context = {
+                const s1 = Fs.readFileSync(Path.join(__dirname, file1)).toString();
+                const s2 = Fs.readFileSync(Path.join(__dirname, file2)).toString();
+
+                const converter1 = Promise.promisifyAll(new Converter);
+                const converter2 = Promise.promisifyAll(new Converter);
+
+                Promise.all([
+                    converter1.fromStringAsync(s1),
+                    converter2.fromStringAsync(s2)
+                ])
+                .then(function(data){
+
+                    const context = {
                         data: data
                     };
-                    //console.log(result)
+
+                    // console.log(context.data)
+
                     return reply.view(Path.join(__dirname, "templates/test-model.html"), { ctx: context });
                 });
 
-
-            },
+            }
         }
     });
 

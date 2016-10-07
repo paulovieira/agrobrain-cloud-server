@@ -1,13 +1,86 @@
-<html>
-    <head></head>
-    <body>
-        <h2>H2Optimum model</h2>
-        <div><b>ts: </b><span id="content-1"></span></div>
-        <div><b>wp@30: </b><span id="content-2"></span></div>
-        <div><b>wp@60: </b><span id="content-3"></span></div>
-        <div><b>status: </b><span id="content-4"></span></div>
-        <div><b> </b><span id="content-5"></span></div>
-        <script>window.data = {{ ctx.data | stringify }}</script>
-        <script src='/model/model.js'></script>
-    </body>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link href="/public/lib/bootstrap/3.3.5/css/bootstrap.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="container">
+
+    <h2>H2Optimum irrigation model - tests</h2>
+
+    {% for scenario in ctx.data %}
+    {% set loopScenario = loop.index0 %}
+
+    <div class="row">
+        <div class="col-sm-4" style="margin-bottom: 20px;">
+
+        <div style="border: solid 1px; padding: 20px; border-radius: 5px; border-color: gray;">
+        <table class="table" >
+            <caption>Cenário #{{ loopScenario }}</caption>
+            <thead>
+                <tr>
+                    <th>hora</th>
+                    <th>wp 30</th>
+                    <th>wp 60</th>
+                    <th>precipitação</th>
+                </tr>
+            </thead>
+            <tbody data-scenario-id="{{ loopScenario }}">
+                {% for rowData in scenario %}
+                <tr>
+                    <td><input type='text' class='form-control' style='width: 50px' value='{{ rowData.ts }}' id='{{ loopScenario }}-{{ loop.index0 }}'></td>
+                    <td><input type='text' class='form-control' style='width: 50px' value='{{ rowData.wp_30 }}' id='{{ loopScenario }}-{{ loop.index0 }}'></td>
+                    <td><input type='text' class='form-control' style='width: 50px' value='{{ rowData.wp_60 }}' id='{{ loopScenario }}-{{ loop.index0 }}'></td>
+                    <td><input type='text' class='form-control' style='width: 50px' value='{{ rowData.prec }}' id='{{ loopScenario }}-{{ loop.index0 }}'></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+
+        </div>
+        <div class="col-sm-8">
+
+            <button type="button" class="btn btn-info" data-scenario-run="true" data-scenario-id="{{ loopScenario }}">
+                Executar cenário #{{ loopScenario }}
+            </button>
+
+            <div data-results="{{ loopScenario }}">
+                
+            </div>
+        </div>
+
+    </div>
+    {% endfor %}
+
+
+
+
+    <div><b>ts: </b><span id="content-1"></span></div>
+    <div><b>wp@30: </b><span id="content-2"></span></div>
+    <div><b>wp@60: </b><span id="content-3"></span></div>
+    <div><b>status: </b><span id="content-4"></span></div>
+    <div><b> </b><span id="content-5"></span></div>
+
+    </div>
+
+    <script>window.data = {{ ctx.data | stringify }}</script>
+    
+    <script src="/public/lib/jquery/jquery-1.11.2.js"></script>
+    <script src="/public/lib/fecha-2.1.0.js"></script>
+    <script src='/model/model.js'></script>
+
+</body>
+
 </html>
+
+
+
