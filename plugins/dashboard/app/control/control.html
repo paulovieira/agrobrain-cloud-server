@@ -1,172 +1,219 @@
-
-<div class="row">
-    <div class="col-md-3">
-        <div class="card card-circle-chart" data-background="color" data-color="blue">
-            <div class="header text-center">
-                <h5 class="title">Ligado</h5>
-                <p class="description">Campo das faias</p>
-            </div>
+<div class="container-fluid">
+    <div class="row">
 
 
-            <div class="content">
-                <div data-pivot-chart="true" class="chart-circle" data-percent="34">{{ irrigation.timeElapsed[0] }}h {{ irrigation.timeElapsed[1] }}min
+
+
+        <div class="col-lg-3 col-sm-6">
+
+            <div class="card card-circle-chart" data-background="color" data-color="{{ stateColor }}">
+                <div class="header text-center">
+                    <h5 class="title">{{  stateText }}</h5>
+                    <p class="description">{{ name }}</p>
                 </div>
-                <div>
-                    Tempo restante: {{ irrigation.timeToFinish[0] }}h {{ irrigation.timeToFinish[1] }}m
+                <div class="content">
+                    <div id="chartDashboard" class="chart-circle" data-percent="{{ timeElapsedPercentage }}" data-pivot-chart="true">{{ timeElapsed[0] }}h {{ timeElapsed[1] }}min</div>
                 </div>
-            </div>
 
+                {% if on %}
 
-
-{#
-            <div class="content">
-                <div id="chartDashboard" class="chart-circle" data-percent="90">5h 32min</div>
-            </div>
-  #}
-
-            <div class="card-footer text-center">
-                <button class="btn btn-default btn-fill" onclick="demo.showSwal('warning-message-and-cancel')">Desligar rega
-                <i class="fa fa-camera-retro fa-lg"></i> fa-lg
-                </button>
-            </div>
-        </div>
-    </div>  
-    
-    
-    <div class="col-md-3">
-        <div class="card card-circle-chart" data-background="color" data-color="orange">
-            <div class="header text-left">
-                <h5 class="title">Lisboa<br/>
-                <small class="description">16 de Novembro</small></h5>
-            </div>
-            <div class="content text-center">
-                <h1>
-                    <i class="wi wi-day-cloudy"></i> 25ºC
-                </h1>
-                <div class="row">
-                  <div class="col-md-4"><i class="wi wi-moon-waxing-crescent-6" style="font-size:26px;"></i></div>
-                  <div class="col-md-4"><i class="wi wi-wind-beaufort-6" style="font-size:26px;"></i></div>
-                  <div class="col-md-4">12º/26º</div>
+                <div style="margin-top: -20px;" class="text-center">
+                Tempo para terminar: {{ timeToFinish[0] }}h {{ timeToFinish[1] }}m
                 </div>
-                    
-                        
 
-                        
-                            
+                <div class="card-footer text-center">
+
+                    <button class="btn btn-default btn-fill" data-app-id="turn-off">Desligar rega</button>
+                </div>
+
+                {% else %}
+
+                <div style="margin-top: -20px;" class="card-footer text-center">
+
+                    <button class="btn btn-default btn-fill" data-app-id="turn-on" >Ligar rega</button>
+                </div>
+
+                {% endif %}
                 
-                <hr>
-                <div class="row">
-                        <div class="col-md-4 text-left">
-                            17 Nov.
-                        </div>
-                        <div class="col-md-4 text-center">
-                            <i class="wi wi-day-sunny" style="font-size:26px;"></i>
-                        </div>
-                        <div class="col-md-4 text-center">
-                            15º/24º
+            </div>
+
+
+        </div>
+
+
+
+		<div class="col-md-3">
+		    <div class="card card-circle-chart" data-background="color" data-color="orange">
+		        <div class="header text-left">
+		            <h5 class="title">{{ meteo.location }}<br/>
+                    <small class="description">{{ displayDate }}</small></h5>
+		        </div>
+		        <div class="content text-center">
+		            <h1>
+						<i class="wi wi-day-{{ meteo.today.weatherIcon }}"></i> 25ºC
+					</h1>
+		            <div class="row">
+		                <div class="col-md-4"><i class="wi wi-moon-waxing-crescent-6" style="font-size:26px;"></i></div>
+		                <div class="col-md-4"><i class="wi wi-wind-beaufort-6" style="font-size:26px;"></i></div>
+		                <div class="col-md-4">{{ meteo.today.minTemperature }}º/{{ meteo.today.maxTemperature }}º</div>
+		            </div>
+		            <hr>
+		            <div class="row">
+		                <div class="col-md-4 text-left">
+		                    {{ meteo.tomorrow.displayDate }}
+		                </div>
+		                <div class="col-md-4 text-center">
+		                    <i class="wi wi-day-{{ meteo.tomorrow.weatherIcon }}" style="font-size:26px;"></i>
+		                </div>
+		                <div class="col-md-4 text-center">
+		                    {{ meteo.tomorrow.minTemperature }}º/{{ meteo.tomorrow.maxTemperature }}º
+		                </div>
+		            </div>
+		            <hr>
+		            <div class="row">
+		                <div class="col-md-4 text-left">
+		                    {{ meteo.afterTomorrow.displayDate }}
+		                </div>
+		                <div class="col-md-4 text-center">
+		                    <i class="wi wi-day-{{ meteo.afterTomorrow.weatherIcon }}" style="font-size:26px;"></i>
+		                </div>
+		                <div class="col-md-4 text-center">
+		                    {{ meteo.afterTomorrow.minTemperature }}º/{{ meteo.afterTomorrow.maxTemperature }}º
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		</div>
+
+
+
+		<div class="col-md-6">
+		    <div class="card ">
+		        <div class="header">
+		            <h4 class="title">Últimas 24 horas</h4>
+		            <p class="category">{{ name }}</p>
+		        </div>
+		        <div class="content">
+		            <div id="temperatures" class="xxxct-chart"></div>
+		        </div>
+		        <div class="card-footer">
+		            <div class="chart-legend">
+		                <i class="fa fa-circle text-info"></i> Temperatura
+		                {# <i class="fa fa-circle text-warning"></i> Potencial hídrico #}
+		            </div>
+		        </div>
+		    </div>
+		</div>
+
+
+
+    </div>
+
+
+    <div class="row">
+        <div class="col-sm-6">
+
+
+                <div class="card">
+                    <div class="header">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4 class="title">Regras</h4>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <button class="btn btn-danger btn-fill btn-wd" data-toggle="modal" data-target="#myControl" id="new-rule">Adicionar nova regra</button>
+                            </div>
                         </div>
                     </div>
-                <hr>
-                <div class="row">
-                        <div class="col-md-4 text-left">
-                            18 Nov.
-                        </div>
-                        <div class="col-md-4 text-center">
-                            <i class="wi wi-day-rain" style="font-size:26px;"></i>
-                        </div>
-                        <div class="col-md-4 text-center">
-                            15º/24º
-                        </div>
+                    <div class="content table-responsive table-full-width">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%" class="text-center">#</th>
+                                    <th style="width: 55%">Descrição</th>
+                                    <th style="width: 20%">Estado</th>
+                                    <th style="width: 15%" class="text-right"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for rule in rulesC %}
+
+        	                    <tr>
+        	                        <td class="text-center">{{ loop.index }}</td>
+        	                        <td>{{ rule.description }}</td>
+        	                        <td>
+        	                            <input type="checkbox" data-toggle="switch" class="ct-primary" {{ 'checked' if rule.state == true }} />
+        	                        </td>
+        	                        <td class="td-actions text-right">
+        	                            <a href="#" rel="tooltip" title="Editar" class="btn btn-success btn-simple btn-xs" data-rule-id="{{ rule.id }}" data-edit-rule="true">
+        	                                <i class="ti-pencil-alt"></i>
+        	                            </a>
+        	                            <a href="#" rel="tooltip" title="Remover regra" class="btn btn-danger btn-simple btn-xs" data-rule-id="{{ rule.id }}" data-delete-rule="true">
+        	                                <i class="ti-close"></i>
+        	                            </a>
+        	                        </td>
+        	                    </tr>
+    	                    {% endfor %}
+
+                            </tbody>
+                        </table>
                     </div>
-                
-                        
-                        
-                        
-            </div>
-        </div>  
-    </div>
-    <div class="col-md-6">
-        <div class="card ">
-            <div class="header">
-                <h4 class="title">Últimas 24 horas</h4>
-                <p class="category">Campo das faias</p>
-            </div>
-            <div class="content">
-                <div id="chartActivity" class="ct-chart"></div>
-            </div>
-            <div class="card-footer">
-                <div class="chart-legend">
-                    <i class="fa fa-circle text-info"></i> Evapotranspiração
-                    <i class="fa fa-circle text-warning"></i> Potencial hídrico
                 </div>
-                
-                
-            </div>
-        </div>
-    </div>
 
-            
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="header">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h4 class="title">Assuma o controlo!!</h4>
+        </div>
+        <div class="col-sm-6">
+
+
+                <div class="card">
+                    <div class="header">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4 class="title">Alertas</h4>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <button class="btn btn-danger btn-fill btn-wd" data-toggle="modal" data-target="#myControl" id="new-alert">Adicionar novo alerta</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-6 text-right">   
-                        <button class="btn btn-danger btn-fill btn-wd" data-toggle="modal" data-target="#myControl">Adicionar nova acção</button>
-                        
+                    <div class="content table-responsive table-full-width">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%" class="text-center">#</th>
+                                    <th style="width: 55%">Descrição</th>
+                                    <th style="width: 20%">Estado</th>
+                                    <th style="width: 15%" class="text-right">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for alert in alertsC %}
 
-                    </div>  
-                </div>                              
-            </div>
-            <div class="content table-responsive table-full-width">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th class="text-center">#</th>
-                            <th>Descrição</th>
-                            <th>Estado</th>
-                            <th class="text-right">Tipo</th>
-                            <th class="text-right">Acções</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="text-center">1</td>
-                            <td>Desligar a rega após 3h</td>
-                            <td><input type="checkbox" checked data-toggle="switch" class="ct-primary"/></td>
-                            <td class="text-right">Regra</td>
-                            <td class="td-actions text-right">
-                                
-                                <a href="#" rel="tooltip" title="Editar" class="btn btn-success btn-simple btn-xs">
-                                    <i class="ti-pencil-alt"></i>
-                                </a>
-                                <a href="#" rel="tooltip" title="Remover" class="btn btn-danger btn-simple btn-xs">
-                                    <i class="ti-close"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">2</td>
-                            <td>Enviar um sms quando o potencial hídrico for menor que 7</td>
-                            <td><input type="checkbox" data-toggle="switch"/></td>
-                            <td class="text-right">Alerta</td>
-                            <td class="td-actions text-right">
-                                
-                                <a href="#" rel="tooltip" title="Editar" class="btn btn-success btn-simple btn-xs">
-                                    <i class="ti-pencil-alt"></i>
-                                </a>
-                                <a href="#" rel="tooltip" title="Remover" class="btn btn-danger btn-simple btn-xs">
-                                    <i class="ti-close"></i>
-                                </a>
-                            </td>
-                        </tr>                                           
-                    </tbody>
-                </table>
-            </div>
+        	                    <tr>
+        	                        <td class="text-center">{{ loop.index }}</td>
+        	                        <td>{{ alert.description }}</td>
+        	                        <td>
+        	                            <input type="checkbox" data-toggle="switch" class="ct-primary" {{ 'checked' if alert.state == true }} />
+        	                        </td>
+        	                        <td class="td-actions text-right">
+        	                            <a href="#" rel="tooltip" title="Editar" class="btn btn-success btn-simple btn-xs" data-alert-id="{{ alert.id }}"  data-edit-alert="true">
+        	                                <i class="ti-pencil-alt"></i>
+        	                            </a>
+        	                            <a href="#" rel="tooltip" title="Remover" class="btn btn-danger btn-simple btn-xs" data-alert-id="{{ alert.id }}" data-delete-alert="true">
+        	                                <i class="ti-close"></i>
+        	                            </a>
+        	                        </td>
+        	                    </tr>
+        	                    {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
         </div>
     </div>
+
+
 </div>
-                                        
+

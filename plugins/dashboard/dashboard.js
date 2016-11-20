@@ -8,7 +8,7 @@ const Promise = require('bluebird');
 const Nunjucks = require('hapi-nunjucks');
 const Boom = require('boom');
 const Glob = require('glob');
-
+const Fecha = require('fecha');
 var Converter = require("csvtojson").Converter;
 //const Utils = require('../../util/utils');
 
@@ -67,19 +67,117 @@ exports.register = function(server, options, next){
         config: {
             handler: function(request, reply) {
 
+                var today = new Date();
+                var tomorrow = new Date();
+                tomorrow = tomorrow.setDate(today.getDate() + 1);
+
+                var afterTomorrow = new Date();
+                afterTomorrow = afterTomorrow.setDate(today.getDate() + 2);
+
                 var context = {
-                    clientName: 'permalab',
+                    
                     pivots: [
+
                         {
-                            name: "campo de milho",
+                            id: 1,
+                            clientName: 'demo',
+                            code: 'permalab',
+                            name: "Permalab",
                             on: true,
-                            irrigation: {
-                                timeElapsed: [3, 30],
-                                timeToFinish: [1,13]
-                            }
+                            timeElapsed: [3, 0],
+                            timeElapsedPercentage: 75,
+                            timeToFinish: [1, 0]
+                        },
+
+
+                        {
+                            id: 2,
+                            clientName: 'demo',
+                            code: 'campo-das-faias',
+                            name: "Campo das Faias",
+                            on: false,
+                            timeElapsed: [0, 0],
+                            timeElapsedPercentage: 0,
+                            timeToFinish: [0, 0],
 
                         }
+
+
+                    ],
+
+                    meteo: {
+
+                        location: 'Lisboa',
+                        temperatures: [
+                            [15,16,18,19,21,19,17,15]
+                        ],
+                        
+                        today: {
+                            displayDate: Fecha.format(today, 'DD MMMM'),
+                            currentTemperature: 25,
+                            minTemperature: 20,
+                            maxTemperature: 30,
+                            weatherIcon: 'sunny'
+                        },
+                        tomorrow: {
+                            displayDate: Fecha.format(tomorrow, 'DD MMM'),
+                            minTemperature: 19,
+                            maxTemperature: 29,
+                            weatherIcon: 'haze'
+                        },
+                        afterTomorrow: {
+                            displayDate: Fecha.format(afterTomorrow, 'DD MMM'),
+                            minTemperature: 18,
+                            maxTemperature: 28,
+                            weatherIcon: 'thunderstorm'
+                        },
+                    },
+
+                    rules: [
+                        {
+                            id: 5,
+                            description: 'desligar apos 6h',
+                            state: true,
+                            action: 'turnOn',
+                            data: {
+                                timeToFinish: 9    
+                            }
+                            
+                        },
+                        {
+                            id: 7,
+                            description: 'desligar apos 12h',
+                            state: false,
+                            action: 'turnOn',
+                            data: {
+                                timeToFinish: 12
+                            }
+                            
+                        }
+                    ],
+
+                    alerts: [
+                        {
+                            id: 9,
+                            description: 'enviar email quando o sistema estiver ligado',
+                            state: true,
+                            action: 'email',
+                            data: {
+                                contact: 'paulovieira@gmail.com'
+                            }
+                        },
+
+                        {
+                            id: 10,
+                            description: 'enviar sms quando o sistema desligar',
+                            state: true,
+                            action: 'sms',
+                            data: {
+                                contact: '123456789'
+                            }
+                        }
                     ]
+
                 };
 
                 return reply.view(Path.join(__dirname, "templates/dashboard.html"), { ctx: context });

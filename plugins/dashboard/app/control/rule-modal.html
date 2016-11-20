@@ -1,0 +1,80 @@
+<div class="modal-dialog modal-md">
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h4 class="modal-title">Adicionar/editar regra</h4>
+        </div>
+
+        <div class="modal-body">
+
+
+            <div class="row">
+
+                <div class="col-sm-10 col-sm-offset-1">
+                    <div class="form-group">
+                        <label class="control-label" for="rule-action">
+                            Acção
+                        </label>
+                        <select class="form-control" id="rule-action">
+                            <option value="off">Desligar rega</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+                    <div class="form-group">
+                        <label class="control-label" for="rule-hours">Desligar após (horas):</label>
+                        <input class="form-control" id="rule-hours" type="number" name="" data-app-id="hours" value={{ data.timeToFinish }}  />
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+
+                    <label class="control-label" for="rule-switch">Ativar/Desativar</label>
+                    <p>
+                    <input type="checkbox" data-toggle="switch" id="rule-switch" {{ "checked" if state == true }} /></p>
+
+                </div>
+            </div>
+
+
+
+{#
+                <div class="row">
+                    <div class="col-md-5 col-md-offset-1">
+                        <div class="form-group">
+                            <label class="control-label">Executar acção se o potencial hídrico está Alto?</label>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <br>
+                        <input type="checkbox" data-toggle="switch" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-5 col-md-offset-1">
+                        <div class="form-group">
+                            <label class="control-label">Executar acção se o potencial hídrico está baixo?</label>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <br>
+                        <input type="checkbox" data-toggle="switch"  />
+                    </div>
+                </div>
+#}
+
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" style="padding: 6px 24px" class="btn btn-info" data-app-id="save">Gravar</button>
+            <button type="button" style="padding: 6px 18px" class="btn" data-dismiss="modal">Cancelar</button>
+        </div>
+
+    </div>
+</div>

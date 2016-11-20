@@ -13,6 +13,12 @@ module.exports = function(env){
         return Fecha.format(new Date(d), 'MMMM/YYYY');
     });
 
+    env.addFilter('now', function(){
+
+        // d is the string representation of a date (in ISO8601)
+        return Date.now();
+    });
+
     env.addGlobal("lang", "pt");
 
 };

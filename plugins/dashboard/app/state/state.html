@@ -1,18 +1,30 @@
 <div class="row">
+
+{% for pivot in pivotsC %}
+
     <div class="col-lg-3 col-sm-6">
-        <div class="card card-circle-chart" data-background="color" data-color="orange">
-            <div class="header text-center">
-                <h5 class="title">{{ 'Ligado' if on else 'Desligado'  }}</h5>
-                <p class="description">{{ name }}</p>
-            </div>
-            <div class="content">
-                <div data-pivot-chart="true" class="chart-circle" data-percent="34">{{ irrigation.timeElapsed[0] }}h {{ irrigation.timeElapsed[1] }}min
+        <a href="#!/control/{{ pivot.code }}">
+            <div style="padding-bottom: 15px;" class="card card-circle-chart" data-background="color" data-color="{{ pivot.stateColor }}">
+                <div class="header text-center">
+                    <h5 class="title">{{ pivot.stateText }}</h5>
+                    <p class="description">{{ pivot.name }}</p>
                 </div>
-                <div>
-                    Tempo restante: {{ irrigation.timeToFinish[0] }}h {{ irrigation.timeToFinish[1] }}m
+                <div style="padding-top: 0" class="content">
+                    <div id="chartDashboard" class="chart-circle" data-percent="{{ pivot.timeElapsedPercentage }}" data-pivot-chart="true">{{ pivot.timeElapsed[0] }}h {{ pivot.timeElapsed[1] }}min</div>
                 </div>
+
+                {% if pivot.on %}
+
+                <div style="margin-top: -20px; color: #60773d;" class="text-center">
+                Tempo para terminar: {{ pivot.timeToFinish[0] }}h {{ pivot.timeToFinish[1] }}m
+                </div>
+
+                {% endif %}
+                
             </div>
-        </div>
+
+        </a>
     </div>
 
+{% endfor %}
 </div>

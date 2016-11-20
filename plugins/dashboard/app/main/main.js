@@ -1,5 +1,5 @@
 //require("./menu-main.css");
-
+/*
 var $ = require("jquery");
 var Backbone = require("backbone");
 var Mn = require("backbone.marionette");
@@ -56,3 +56,4 @@ var Main = Mn.LayoutView.extend({
 });
 
 module.exports = Main;
+*/

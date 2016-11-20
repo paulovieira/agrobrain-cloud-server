@@ -1,0 +1,214 @@
+
+    <div class="wrapper">
+        <div class="sidebar" data-background-color="brown" data-active-color="danger">
+        <!--
+            Tip 1: you can change the color of the sidebar's background using: data-background-color="white | brown"
+            Tip 2: you can change the color of the active button using the data-active-color="primary | info | success | warning | danger"
+        -->
+            <div class="logo">
+                <a href="#" class="simple-text">
+                    Spin On 
+                </a>
+            </div>
+            <div class="logo logo-mini">
+                <a href="#" class="simple-text">
+                    SO
+                </a>
+            </div>
+            <div class="sidebar-wrapper">
+                <div class="user">
+                    <div class="photo">
+                        <img src="/paper-kit/assets/img/faces/face-2.jpg" />
+                    </div>
+                    <div class="info">
+                        <a data-toggle="collapse" href="#collapseExample" class="collapsed">
+                            Anastácio Silva 
+                            <b class="caret"></b>
+                        </a>
+                        <div class="collapse" id="collapseExample">
+                            <ul class="nav">
+                                <li><a href="?page=user">Editar perfil</a></li>
+                                <li><a href="?page=users">Gerir utilizadores</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <ul class="nav">
+
+                    <li class="{{ 'active' if activeUri == 'state' }}">
+                        <a href="#!/state">
+                            <i class="ti-eye"></i>
+                            <p>Estado</p>                     
+                        </a>
+                        
+                    </li>
+
+                    <li class="{{ 'active' if activeUri == 'control' }}">
+                        <a data-toggle="collapse" href="#dashboardOverview">
+                            <i class="ti-panel"></i>
+                            <p>Controlo
+                                <b class="caret"></b>
+                            </p>
+                        </a>
+                        <div class="" id="dashboardOverview">
+                            <ul class="nav">
+
+                                {% for pivot in pivotsC %}
+                                <li class="{{ 'active' if pivot.active }}">
+                                    <a href="#!/control/{{ pivot.code }}">{{ pivot.name }}</a>
+                                </li>
+                                {% endfor %}
+
+                                {#
+                                <li><a href="#">Campo das amoreiras</a></li>
+                                <li><a href="#">Campo pequeno</a></li>
+                                <li><a href="#">Pomar</a></li>
+                                #}
+
+                            </ul>
+                        </div>
+                    </li>
+                    
+                    
+                    
+                    <li>
+                        <a href="#!/analysis">
+                            <i class="ti-bar-chart-alt"></i>
+                            <p>Análise</p>
+                        </a>
+                    </li>
+
+                    <li class="{{ 'active' if activeUri == 'meteo' }}">
+                        <a href="#!/meteo">
+                            <i class="ti-cloud"></i>
+                            <p>Meteorologia</p>
+                        </a>
+                    </li>
+
+<!-- alternative - icon from font-awesome                   
+                    <li>
+                        <a href="#forecast">
+                            <i class="fa fa-cloud" aria-hidden="true"></i>
+                            <p>Meteorologia</p>
+                        </a>
+                    </li> 
+-->
+
+                    <li>
+                        <a href="#!/reporting">
+                            <i class="ti-file" aria-hidden="true"></i>
+                            <p>Reporting</p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-panel">
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <div class="navbar-minimize">
+                        <button id="minimizeSidebar" class="btn btn-fill btn-icon"><i class="ti-more-alt"></i></button>
+                    </div>
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar bar1"></span>
+                            <span class="icon-bar bar2"></span>
+                            <span class="icon-bar bar3"></span>
+                        </button>
+                        <a class="navbar-brand" href="#charts">Herdade do Freixo</a>
+                    </div>
+                    <div class="collapse navbar-collapse">
+                        <!--<form class="navbar-form navbar-left navbar-search-form" role="search">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                                <input type="text" value="" class="form-control" placeholder="Pesquisar...">
+                            </div>
+                        </form>-->
+                        <ul class="nav navbar-nav navbar-right">
+                            <!--<li>
+                                <a href="#stats" class="dropdown-toggle btn-magnify" data-toggle="dropdown">
+                                    <i class="ti-panel"></i>
+                                    <p>Stats</p>
+                                </a>
+                            </li>-->
+                            <!--
+                            <li class="dropdown">
+                                <a href="#notifications" class="dropdown-toggle btn-rotate" data-toggle="dropdown">
+                                    <i class="ti-bell"></i>
+                                    <span class="notification">5</span>
+                                    <p>
+                                        Notifications <b class="caret"></b>
+                                    </p>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#not1">Notification 1</a></li>
+                                    <li><a href="#not2">Notification 2</a></li>
+                                    <li><a href="#not3">Notification 3</a></li>
+                                    <li><a href="#not4">Notification 4</a></li>
+                                    <li><a href="#another">Another notification</a></li>
+                                </ul>
+                            </li>
+                            -->
+                            <!--<li>
+                                <a href="#settings" class="btn-rotate">
+                                    <i class="ti-settings"></i>
+                                    <p>Settings</p>
+                                </a>
+                            </li>-->
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="content">
+                <div class="container-fluid">
+
+
+                    {#
+                    <div class="row">
+                    <!-- your content here -->
+                    
+                    <?php include "pages/$page.html";  ?>
+                    
+                    </div>
+                    #}
+                    <div data-mn-region-id='right'>
+                        <!-- actual content goes here -->
+                        main content
+                    </div>
+
+                </div>
+            </div>
+
+            <footer class="footer">
+                <div class="container-fluid">
+{#
+                    <nav class="pull-left">
+                        <ul>
+                            <li>
+                                <a href="http://www.creative-tim.com">
+                                    Creative Tim
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://blog.creative-tim.com">
+                                   Blog
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://www.creative-tim.com/license">
+                                    Licenses
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+#}
+                    <div class="copyright pull-right">
+                        &copy; 2016 Spin Off
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>

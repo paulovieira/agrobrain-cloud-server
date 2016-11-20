@@ -21,4 +21,4 @@ config/production.js
 database/readings-*.json
 database/__*
 logs
-
+**/_build/*
