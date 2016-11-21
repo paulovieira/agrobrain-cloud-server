@@ -185,11 +185,11 @@ var ControlV = Mn.LayoutView.extend({
 
         });
 
-        //debugger;
+
         // activate chartist
 
-        var data = {
-            labels: [0,3,6,9,12,15,18,21],
+        var dataTemperatures = {
+            labels: [10,12,14,16,18,20,22,0,2,4,6,8,10],
             series: this.model.get('meteo').temperatures
         };
 
@@ -201,11 +201,16 @@ var ControlV = Mn.LayoutView.extend({
             }
         };
 
-        new Chartist.Line('#temperatures', data, options);
+        new Chartist.Line('[data-app-id="temperatures"]', dataTemperatures, options);
 
-        // transform checkboxes into switches
-//debugger;
-  //      this.ui.switch.first().wrap('<div class="switch" />').parent().bootstrapSwitch();
+
+        var dataWP = {
+            labels: [10,12,14,16,18,20,22,0,2,4,6,8,10],
+            series: this.model.get('meteo').wp
+        };
+
+        new Chartist.Line('[data-app-id="wp"]', dataWP, options);
+
 
         this.ui.switch.each(function (){
             

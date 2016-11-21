@@ -87,28 +87,45 @@
 
 
 
-		<div class="col-md-6">
-		    <div class="card ">
-		        <div class="header">
-		            <h4 class="title">Últimas 24 horas</h4>
-		            <p class="category">{{ name }}</p>
-		        </div>
-		        <div class="content">
-		            <div id="temperatures" class="xxxct-chart"></div>
-		        </div>
-		        <div class="card-footer">
-		            <div class="chart-legend">
-		                <i class="fa fa-circle text-info"></i> Temperatura
-		                {# <i class="fa fa-circle text-warning"></i> Potencial hídrico #}
-		            </div>
-		        </div>
-		    </div>
-		</div>
-
-
-
     </div>
 
+    <div class="row">
+
+        <div class="col-md-6">
+            <div class="card ">
+                <div class="header">
+                    <h4 class="title">Últimas 24 horas</h4>
+                    <p class="category">{{ name }}</p>
+                </div>
+                <div class="content">
+                    <div data-app-id="temperatures"></div>
+                </div>
+                <div class="card-footer">
+                    <div class="chart-legend">
+                        <i class="fa fa-circle text-info"></i> Temperatura
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card ">
+                <div class="header">
+                    <h4 class="title">Últimas 24 horas</h4>
+                    <p class="category">{{ name }}</p>
+                </div>
+                <div class="content">
+                    <div data-app-id="wp"></div>
+                </div>
+                <div class="card-footer">
+                    <div class="chart-legend">
+                        <i class="fa fa-circle text-info"></i> Potencial hídrico 
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
 
     <div class="row">
         <div class="col-sm-6">
