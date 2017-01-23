@@ -64,11 +64,12 @@ exports.register = function (server, options, next){
             validate: {
                 query: {
                     clientName: Joi.string().min(1).required(),
-                    start: Joi.date().format(['YY-MM-DD', 'YYYY-MM-DD']).default(internals.defaultDate),
-                    end: Joi.date().format(['YY-MM-DD', 'YYYY-MM-DD']).default(internals.defaultDate),
+                    start: Joi.date().default(internals.defaultDate),
+                    end: Joi.date().default(internals.defaultDate),
                     timeInterval: Joi.number().integer().valid([1,2,3,4,6,12,24]).default(1),
                     format: Joi.string().valid(['json', 'csv']).default('json'),
-                    stddev: Joi.boolean().default(false)
+                    stddev: Joi.boolean().default(false),
+                    type: Joi.string().default('t')
                 }
             }
         },
@@ -85,7 +86,8 @@ exports.register = function (server, options, next){
                 start: request.query.start, 
                 end: request.query.end,
                 timeInterval: request.query.timeInterval,
-                stddev: request.query.stddev
+                stddev: request.query.stddev,
+                type: request.query.type
             };
             console.log(queryOptions);
 
@@ -104,7 +106,7 @@ exports.register = function (server, options, next){
 
                         const obj = result[i];
 
-                        result[i].ts = Fecha.format(result[i].ts, 'YYYY-DD-MM HH:mm');
+                        result[i].ts = Fecha.format(result[i].ts, 'YYYY-MM-DD HH:mm');
                         for (let j = 0; j < obj.data.length; ++j){
 
                             const obj2 = obj.data[j];

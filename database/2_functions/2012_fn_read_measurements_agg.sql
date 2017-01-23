@@ -19,6 +19,7 @@ _client_code text;
 _time_interval int;
 _ts_start timestamptz;
 _ts_end timestamptz;
+_type text;
 _stddev bool;
 
 
@@ -29,6 +30,7 @@ _client_code   := COALESCE(options->>'clientCode', 'XXXX');
 _time_interval := COALESCE((options->>'timeInterval')::int, 1);
 _ts_start      := COALESCE((options->>'start')::timestamptz, '2000-01-01');
 _ts_end        := COALESCE((options->>'end')::timestamptz,   '2000-01-01');
+_type          := COALESCE(options->>'type',  't');
 _stddev        := COALESCE((options->>'stddev')::bool, false);
 
 
@@ -53,16 +55,17 @@ with agg_by_time as (
 	where
 		val > (case 
 			when type = 't' then 0  /* min temperature */
-			when type = 'h' then -5  /* min humidity */
+			when type = 'h' then -100  /* min humidity */
 			else -99999
 			end)
 		and 
 		val < (case 
 			when type = 't' then 50  /* max temperature */
-			when type = 'h' then 110  /* max humidity */
+			when type = 'h' then 3000  /* max humidity */
 			else 99999
 			end)
 		and ts >= $1 and ts <= $2
+		and type = $3
 			
 	group by time, mac, sid, type
 	order by time
@@ -127,7 +130,8 @@ query := format(query, _time_interval, _time_interval, _client_code, json_build_
 RETURN QUERY EXECUTE query
 USING
 	_ts_start,
-	_ts_end;
+	_ts_end,
+	_type;
 
 RETURN;
 
