@@ -473,7 +473,7 @@ var ControlV = Mn.LayoutView.extend({
         });
 
         // set a default start date
-        var offset = 27;
+        var offset = 0;
         var initialDate = new Date(Date.now() - 86400000 * offset).toISOString().split('T')[0];
         this.ui.startDate.val(initialDate);
         this.ui.startDate.trigger('change');
