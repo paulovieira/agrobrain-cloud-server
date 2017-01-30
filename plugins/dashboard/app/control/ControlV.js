@@ -1,9 +1,11 @@
+require('chartist-plugin-tooltips/dist/chartist-plugin-tooltip.css');
 var $ = require('jquery');
 var _ = require('underscore');
 var Backbone = require('backbone');
 var Mn = require('backbone.marionette');
 var Radio = require('backbone.radio');
 var Chartist = require('chartist');
+var ChartistToolips = require('chartist-plugin-tooltips');
 var Q = require('q');
 var Moment = require('moment');
 
@@ -107,13 +109,33 @@ var ControlV = Mn.LayoutView.extend({
         dateEnd2.setHours(1);
         var end2 = dateEnd2.toISOString();
 
+
+        var numDays = Math.floor((dateEnd2 - new Date(start)) / 86400000);
+
+        var timeInterval = 24;
+        if(numDays <= 2){
+            timeInterval = 1;
+        }
+        else if(numDays <= 4){
+            timeInterval = 3;
+        }
+        else if(numDays <= 7){
+            timeInterval = 6;
+        }
+        else if(numDays <= 15){
+            timeInterval = 9;
+        }
+        else if(numDays <= 30){
+            timeInterval = 12;
+        }
+
         var p1 = $.ajax({
             url: '/api/v1/measurements-agg',
             data: {
                 clientName: 'permalab',
                 start: start,
                 end: end2,
-                timeInterval: 1,
+                timeInterval: timeInterval,
                 format: 'json',
                 type: 't'
             }
@@ -245,7 +267,11 @@ var ControlV = Mn.LayoutView.extend({
 
                     return Moment(value).format('D/MM HH') + 'h';
                 }
-            }
+            },
+
+            plugins: [
+                Chartist.plugins.tooltip()
+            ]
         };
 
 //debugger;
@@ -445,6 +471,12 @@ var ControlV = Mn.LayoutView.extend({
             
             $(this).wrap('<div class="switch" />').parent().bootstrapSwitch();
         });
+
+        // set a default start date
+        var offset = 27;
+        var initialDate = new Date(Date.now() - 86400000 * offset).toISOString().split('T')[0];
+        this.ui.startDate.val(initialDate);
+        this.ui.startDate.trigger('change');
 
 
     }
