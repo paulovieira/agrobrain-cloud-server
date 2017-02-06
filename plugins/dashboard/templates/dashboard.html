@@ -9,6 +9,8 @@
 
     <link href='https://fonts.googleapis.com/css?family=Muli:400,300' rel='stylesheet' type='text/css'>
 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+
 </head>
 
 <body>
@@ -30,6 +32,8 @@
     window.ctx = {{ ctx | stringify }}
     </script>
 
+    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+    
     {% if NODE_ENV == 'dev' %}
 
     <script src="http://localhost:8081/WEBPACK_DEV_SERVER/{{ manifest }}"></script>

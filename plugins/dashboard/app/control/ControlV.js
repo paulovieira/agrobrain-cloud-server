@@ -5,7 +5,12 @@ var Backbone = require('backbone');
 var Mn = require('backbone.marionette');
 var Radio = require('backbone.radio');
 var Chartist = require('chartist');
-var ChartistToolips = require('chartist-plugin-tooltips');
+var ChartistTooltips = require('chartist-plugin-tooltips');
+var ChartistThreshold = require('chartist-plugin-threshold');
+require('./chartist-threshold.css');
+require('./chartist-zoom.css');
+var ChartistZoom = require('chartist-plugin-zoom');
+
 var Q = require('q');
 var Moment = require('moment');
 
@@ -251,7 +256,7 @@ var ControlV = Mn.LayoutView.extend({
 
 
         });
-
+//debugger;
         var options = {
             /*
             fullWidth: true,
@@ -260,6 +265,13 @@ var ControlV = Mn.LayoutView.extend({
                 right: 40
             },
             */
+            //low: 0,
+            //high: 60,
+            //divisor: 12,
+            //ticks: [0, 10, 20, 30, 40, 50, 60],
+            //ticks: [0, 30, 60],
+            
+            /*
             axisX: {
                 type: Chartist.FixedScaleAxis,
                 divisor: 4,
@@ -268,9 +280,33 @@ var ControlV = Mn.LayoutView.extend({
                     return Moment(value).format('D/MM HH') + 'h';
                 }
             },
+            */
+
+            axisX: {
+                type: Chartist.AutoScaleAxis,
+                divisor: 12,
+                labelInterpolationFnc: function(value) {
+
+                    return Moment(value).format('D-MMM HH') + 'h';
+                }
+            },
+            axisY: {
+                type: Chartist.AutoScaleAxis
+            },
+
 
             plugins: [
-                Chartist.plugins.tooltip()
+                Chartist.plugins.tooltip(),
+                Chartist.plugins.ctThreshold({
+                    threshold: 40
+                }),
+                Chartist.plugins.zoom({
+
+                    onZoom: function onZoom(chart, reset) {
+                        //debugger;
+                        var resetFnc = reset;
+                    }
+                })
             ]
         };
 

@@ -33,7 +33,8 @@ const config = {
             'backbone.syphon',
             'bootstrap.js',  // we are using an alias for bootstrap, see below
             'jquery.easypiechart.js',
-            'bootstrap-checkbox-radio-switch-tags.js'
+            'bootstrap-checkbox-radio-switch-tags.js',
+
             //'nunjucks-browser'
         ],
 
@@ -114,18 +115,19 @@ const config = {
             test: /\.less$/,
             loader: "style!css!less"
         },
-/*
+
         { 
             // inline base64 URLs for images that are <= 1k; direct URLs for the others 
             // (the files will be copied to the output dir: _build)
             test: /\.(png|jpg|gif)$/,
             loader: 'url-loader',
             query: {
-                limit: 1024,
+                limit: 1,
                 name: process.env.NODE_ENV === "dev" ? 'images/[name].[ext]' : 
                                                         'images/[name].[hash].[ext]'
             }
         },
+        /*
         {
             // fonts loaded in stylesheets (via "src: url('...')" ); 
             test: /\.(woff|woff2|ttf|eot|svg)$/,
@@ -188,6 +190,26 @@ const config = {
             loader: 'imports',
             query: {
                 'jQuery': 'jquery'
+            }
+        },
+
+        {
+            // similar to the above
+
+            test: /(chartist-plugin-threshold.js)$/,
+            loader: 'imports',
+            query: {
+                'Chartist': 'chartist'
+            }
+        },
+
+        {
+            // similar to the above
+
+            test: /(chartist-plugin-zoom.js)$/,
+            loader: 'imports',
+            query: {
+                'Chartist': 'chartist'
             }
         },
 

@@ -89,7 +89,7 @@ exports.register = function(server, options, next){
                             timeToFinish: [1, 0]
                         },
 
-
+            /*
                         {
                             id: 2,
                             clientName: 'demo',
@@ -101,7 +101,7 @@ exports.register = function(server, options, next){
                             timeToFinish: [0, 0],
 
                         }
-
+*/
 
                     ],
 

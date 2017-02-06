@@ -4,7 +4,7 @@
 
 
 
-        <div class="col-lg-3 col-sm-6">
+        <div class="col-sm-3">
 
             <div class="card card-circle-chart" data-background="color" data-color="{{ stateColor }}">
                 <div class="header text-center">
@@ -41,8 +41,16 @@
         </div>
 
 
+        <div class="col-sm-9">
 
+            <iframe id="forecast_embed" type="text/html" frameborder="0" height="245" width="100%" src="http://forecast.io/embed/#lat=38.757190&lon=-9.160576&name=Lisboa&units=ca"> </iframe>
+
+        </div>
+
+{#
 		<div class="col-md-3">
+
+
 		    <div class="card card-circle-chart" data-background="color" data-color="orange">
 		        <div class="header text-left">
 		            <h5 class="title">{{ meteo.location }}<br/>
@@ -84,7 +92,7 @@
 		        </div>
 		    </div>
 		</div>
-
+#}
 
 
     </div>
@@ -94,7 +102,7 @@
         <div class="col-md-12">
             <div class="card ">
                 <div class="header">
-                    <h4 class="title">Últimas 24 horas</h4>
+                    <h4 class="title"></h4>
                     <p class="category">{{ name }}</p>
                 </div>
                 <div class="content">

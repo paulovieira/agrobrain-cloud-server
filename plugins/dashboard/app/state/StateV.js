@@ -49,6 +49,24 @@ var StateV = Mn.LayoutView.extend({
             animate: ({duration: 5000, enabled: true})
 
         });
+//debugger;
+/**/
+
+        // adjust height
+        var h = $('#pivot-card').height();
+        $('#map').height(h - 20);
+
+        // initialize map
+        var map = L.map('map').setView([38.758153, -9.158425], 16);
+
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        L.marker([38.758153, -9.158425]).addTo(map)
+            .bindPopup('<b>Permalab</b>')
+            .openPopup();
+
 
     }
 

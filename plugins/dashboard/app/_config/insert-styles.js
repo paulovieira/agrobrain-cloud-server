@@ -11,5 +11,7 @@ require('paper-kit-dashboard-pro/assets/css/themify-icons.css');
 require('paper-kit-dashboard-pro/assets/css/weather-icons.css');
 require('paper-kit-dashboard-pro/assets/css/weather-icons-wind.css');
 
+//require('leaflet/dist/leaflet.css');
+
 
 
