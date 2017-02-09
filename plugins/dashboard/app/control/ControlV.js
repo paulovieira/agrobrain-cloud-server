@@ -30,6 +30,21 @@ var internals = {};
 internals.measurementsT = [];
 internals.measurementsH = [];
 
+internals.availableColors = [
+    '#e41a1c',
+    '#377eb8',
+    '#4daf4a',
+    '#984ea3',
+    '#ff7f00',
+    '#ffff33',
+    '#a65628',
+    '#f781bf'
+];
+
+internals.sensorColors = {
+
+};
+
 var ControlV = Mn.LayoutView.extend({
 
     initialize: function(options){
@@ -89,7 +104,7 @@ var ControlV = Mn.LayoutView.extend({
 
         'change @ui.startDate': 'onDateChange',
         'change @ui.endDate': 'onDateChange',
-        'click @ui.sensorSelect': 'onSensorChange'
+        'change @ui.sensorSelect': 'onSensorChange'
     },
 
     onDateChange: function(){
@@ -99,9 +114,11 @@ var ControlV = Mn.LayoutView.extend({
 
         if (start && !end){
             var dateEnd = new Date(start);
-            dateEnd.setDate(dateEnd.getDate() + 1);
+            dateEnd.setDate(dateEnd.getDate() + 7);
             var end = dateEnd.toISOString().split('T')[0];
             this.ui.endDate.val(end);
+
+
         }
 
         if (!start || !end){
@@ -194,6 +211,8 @@ var ControlV = Mn.LayoutView.extend({
             });
 
             _this.ui.sensorSelect.html(html);
+            _this.ui.sensorSelect.val('6e:e0:f5:5:f0:f8:1:h');
+            _this.ui.sensorSelect.trigger('change');
 
         })
         .catch((err) => {
@@ -210,6 +229,13 @@ var ControlV = Mn.LayoutView.extend({
         };
 
         sensorIds.forEach(function(sid){
+
+            
+            var sensorsWithColors = Object.keys(internals.sensorColors);
+            if(sensorsWithColors.indexOf(sid) === -1){
+                internals.sensorColors[sid] = internals.availableColors[0];
+                internals.availableColors.shift()
+            }
 
             if (!sid) {
                 return;
@@ -311,7 +337,36 @@ var ControlV = Mn.LayoutView.extend({
         };
 
 //debugger;
-        new Chartist.Line('[data-app-id="temperatures"]', sensorData, options);
+        var chart = new Chartist.Line('[data-app-id="temperatures"]', sensorData, options);
+
+
+        chart.on('draw', function(context) {
+
+          // First we want to make sure that only do something when the draw event is for bars. Draw events do get fired for labels and grids too.
+          
+            var sid;
+            if(context.type === 'line'  ) {
+                sid = context.series.name;
+                context.element.attr({
+                    style: 'stroke: ' + internals.sensorColors[sid] + ';'
+                });
+            }
+
+            if(context.type === 'label'  ) {
+
+                context.element.attr({
+                    style: 'stroke: red;'
+                });
+            }
+
+            if(context.type === 'point'  ) {
+                sid = context.series.name;
+                context.element.attr({
+                    style: 'stroke: ' + internals.sensorColors[sid] + ';'
+                });
+            }
+        });
+
 
     },
 
@@ -476,7 +531,7 @@ var ControlV = Mn.LayoutView.extend({
 
         });
 
-
+/*
         // activate chartist
 
         var dataTemperatures = {
@@ -492,8 +547,21 @@ var ControlV = Mn.LayoutView.extend({
             }
         };
 
-        new Chartist.Line('[data-app-id="temperatures"]', dataTemperatures, options);
-
+        var chart = new Chartist.Line('[data-app-id="temperatures"]', dataTemperatures, options);
+debugger;
+        chart.on('draw', function(context) {
+            debugger;
+          // First we want to make sure that only do something when the draw event is for bars. Draw events do get fired for labels and grids too.
+          
+          if(context.type === 'bar') {
+            // With the Chartist.Svg API we can easily set an attribute on our bar that just got drawn
+            context.element.attr({
+              // Now we set the style attribute on our bar to override the default color of the bar. By using a HSL colour we can easily set the hue of the colour dynamically while keeping the same saturation and lightness. From the context we can also get the current value of the bar. We use that value to calculate a hue between 0 and 100 degree. This will make our bars appear green when close to the maximum and red when close to zero.
+              style: 'stroke: hsl(' + Math.floor(Chartist.getMultiValue(context.value) / max * 100) + ', 50%, 50%);'
+            });
+          }
+          
+        });
 
         var dataWP = {
             labels: [10,12,14,16,18,20,22,0,2,4,6,8,10],
@@ -501,7 +569,7 @@ var ControlV = Mn.LayoutView.extend({
         };
 
         new Chartist.Line('[data-app-id="wp"]', dataWP, options);
-
+*/
 
         this.ui.switch.each(function (){
             
@@ -509,10 +577,11 @@ var ControlV = Mn.LayoutView.extend({
         });
 
         // set a default start date
-        var offset = 0;
-        var initialDate = new Date(Date.now() - 86400000 * offset).toISOString().split('T')[0];
+        var offset = 30;
+        var initialDate = new Date(Date.now() -  86400000 * offset).toISOString().split('T')[0];
         this.ui.startDate.val(initialDate);
         this.ui.startDate.trigger('change');
+
 
 
     }
