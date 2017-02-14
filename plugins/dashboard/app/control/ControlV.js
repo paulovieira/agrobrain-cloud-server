@@ -405,7 +405,7 @@ var ControlV = Mn.LayoutView.extend({
 
             },
             */
-
+            showArea: true,
 
             plugins: [
                 

@@ -1,4 +1,4 @@
-/*
+
 .ct-line.ct-threshold-above, .ct-point.ct-threshold-above, .ct-bar.ct-threshold-above {
   stroke: #f05b4f;
 }
@@ -13,5 +13,9 @@
 
 .ct-area.ct-threshold-below {
   fill: #68B3C8;
+  opacity: 0;
+
+
 }
+/*
 */
