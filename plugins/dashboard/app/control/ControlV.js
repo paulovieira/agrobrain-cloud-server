@@ -682,7 +682,8 @@ debugger;
         });
 
         // set a default start date
-        var offset = 40;
+        //var offset = 40;
+        var offset = 0;
         var initialDate = new Date(Date.now() -  86400000 * offset).toISOString().split('T')[0];
         this.ui.startDate.val(initialDate);
         this.ui.startDate.trigger('change');
