@@ -79,6 +79,31 @@ module.exports.control = {
     }
 };
 
+module.exports.analysis = {
+
+    path: '!/analysis',
+    handler: function (request, reply) {
+
+        reply(this.tree);
+    },
+
+    tree: {
+        // the top-level region must be given as a reference;
+        // the regions in the children are given as strings (names of the region in the parent view)
+        region: 'rootR',
+        viewClass: require('./root/RootV'),
+        forceRender: true,
+        children: [
+            {
+                viewClass: require('./analysis/AnalysisV'),
+                region: 'right',
+            }
+
+        ]
+    }
+};
+
+
 module.exports.meteo = {
 
     path: '!/meteo',

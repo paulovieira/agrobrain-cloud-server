@@ -87,7 +87,14 @@ var ControlV = Mn.LayoutView.extend({
 
         'startDate': 'input#start-date',
         'endDate': 'input#end-date',
-        'sensorSelect': 'select#sensor_id'
+        'sensorSelect': 'select#sensor_id',
+
+        'sensorsColumn1': 'div#sensors-col-1',
+        'sensorsColumn2': 'div#sensors-col-2',
+        'sensorsColumn3': 'div#sensors-col-3',
+
+        'sensorCheckboxes': 'input[type="checkbox"]',
+        'legends': 'div.chart-legend'
     },
 
     events: {
@@ -104,7 +111,8 @@ var ControlV = Mn.LayoutView.extend({
 
         'change @ui.startDate': 'onDateChange',
         'change @ui.endDate': 'onDateChange',
-        'change @ui.sensorSelect': 'onSensorChange'
+        //'change @ui.sensorSelect': 'onSensorChange',
+        'change @ui.sensorCheckboxes': 'onSensorChange'
     },
 
     onDateChange: function(){
@@ -189,7 +197,7 @@ var ControlV = Mn.LayoutView.extend({
             var allKeysH = data[1].map(obj => Object.keys(obj));
             allKeysH = _.flatten(allKeysH);
             allKeysH = _.uniq(allKeysH);
-
+/*
             var html = '<option value="">(none)</option>';
 
             allKeysT.forEach(key => {
@@ -213,6 +221,67 @@ var ControlV = Mn.LayoutView.extend({
             _this.ui.sensorSelect.html(html);
             _this.ui.sensorSelect.val('6e:e0:f5:5:f0:f8:1:h');
             _this.ui.sensorSelect.trigger('change');
+*/
+            // new
+
+            var htmlColumn1 = '';
+            var htmlColumn2 = '';
+            var htmlColumn3 = '';
+
+            allKeysT.forEach(key => {
+
+                if(key === 'ts'){ return }
+
+                    if ((key.indexOf('18-fe-34-d3-83-85') >= 0 || key.indexOf('18-fe-34-d3-84-c') >= 0)){
+                        htmlColumn2 +=`
+                        <label class="checkbox" id=${ key }>
+                            <input type="checkbox" data-toggle="checkbox" data-id=${ key } value="${ key }">
+                            ${ key }
+                        </label>
+                        `;
+                    }
+
+                    if ((key.indexOf('18-fe-34-db-56-33') >= 0 || key.indexOf('5c-cf-7f-e-33-90') >= 0)){
+                        htmlColumn3 += `
+                        <label class="checkbox" id=${ key } >
+                            <input type="checkbox" data-toggle="checkbox" data-id=${ key } value="${ key }">
+                            ${ key }
+                        </label>
+                        `;
+                    }
+
+            });
+
+            allKeysH.forEach(key => {
+
+                if(key === 'ts'){ return }
+
+                if (key.indexOf('6e:e0:f5:5:f0:f8') >= 0) {
+                    htmlColumn1 +=`
+                    <label class="checkbox" id=${ key } >
+                        <input type="checkbox" data-toggle="checkbox" data-id=${ key } value="${ key }">
+                        ${ key }
+                    </label>
+                    `;
+                }
+            });
+
+            _this.ui.sensorsColumn1.html(htmlColumn1);
+            _this.ui.sensorsColumn2.html(htmlColumn2);
+            _this.ui.sensorsColumn3.html(htmlColumn3);
+
+            
+            this.$('[data-toggle="checkbox"]').each(function () {
+
+              if($(this).data('toggle') == 'switch') return;
+
+              var $checkbox = $(this);
+              $checkbox.checkbox();
+            });
+
+            this.$('input[data-id="6e:e0:f5:5:f0:f8:1:h"]').checkbox('check');
+            ///_this.ui.sensorSelect.val('6e:e0:f5:5:f0:f8:1:h');
+            ///_this.ui.sensorSelect.trigger('change');
 
         })
         .catch((err) => {
@@ -223,12 +292,19 @@ var ControlV = Mn.LayoutView.extend({
 
     onSensorChange: function(e){
 
-        var sensorIds = this.ui.sensorSelect.val();
+        internals.sensorIds = [];
+        this.$('label').filter(function(){
+
+            if ($(this).hasClass('checked')){
+                internals.sensorIds.push($(this).prop('id'));
+            }
+        });
+
         var sensorData = {
             series: []
         };
 
-        sensorIds.forEach(function(sid){
+        internals.sensorIds.forEach(function(sid){
 
             
             var sensorsWithColors = Object.keys(internals.sensorColors);
@@ -280,9 +356,8 @@ var ControlV = Mn.LayoutView.extend({
             }
 
 
-
         });
-//debugger;
+
         var options = {
             /*
             fullWidth: true,
@@ -309,23 +384,35 @@ var ControlV = Mn.LayoutView.extend({
             */
 
             axisX: {
-                type: Chartist.AutoScaleAxis,
-                divisor: 12,
+                //type: Chartist.AutoScaleAxis,
+                type: Chartist.FixedScaleAxis,
+                divisor: 5,
                 labelInterpolationFnc: function(value) {
 
                     return Moment(value).format('D-MMM HH') + 'h';
                 }
             },
+
+            //low: 0,
+            //hight: 60,
             axisY: {
-                type: Chartist.AutoScaleAxis
+               
+                type: Chartist.FixedScaleAxis,
+                low: 0,
+                high: 60,
+                ticks: [0,10,20,30,40,50,60]
+
+
             },
 
 
             plugins: [
+                /*
                 Chartist.plugins.tooltip(),
                 Chartist.plugins.ctThreshold({
                     threshold: 40
                 }),
+                */
                 Chartist.plugins.zoom({
 
                     onZoom: function onZoom(chart, reset) {
@@ -333,6 +420,7 @@ var ControlV = Mn.LayoutView.extend({
                         var resetFnc = reset;
                     }
                 })
+                /**/
             ]
         };
 
@@ -367,7 +455,24 @@ var ControlV = Mn.LayoutView.extend({
             }
         });
 
+        this.updateLegends();
+    },
 
+    updateLegends: function(){
+
+        var html = '';
+        internals.sensorIds.forEach(function(sid){
+
+            var color = internals.sensorColors[sid];
+            if(color){
+                html += `
+                <div class="chart-legend">
+                    <i class="fa fa-circle" style="color: ${ color}"></i> ${ sid }
+                </div>
+                `;
+            }
+        });
+        this.ui.legends.html(html);
     },
 
     onSensorChangeOld: function(e){
@@ -577,7 +682,7 @@ debugger;
         });
 
         // set a default start date
-        var offset = 30;
+        var offset = 40;
         var initialDate = new Date(Date.now() -  86400000 * offset).toISOString().split('T')[0];
         this.ui.startDate.val(initialDate);
         this.ui.startDate.trigger('change');

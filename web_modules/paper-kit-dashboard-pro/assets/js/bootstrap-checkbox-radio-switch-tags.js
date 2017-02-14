@@ -2,8 +2,6 @@
 
 !function ($) {
 
- /* CHECKBOX PUBLIC CLASS DEFINITION
-  * ============================== */
 
   var Checkbox = function (element, options) {
     this.init(element, options);
@@ -57,8 +55,6 @@
   }
 
 
- /* CHECKBOX PLUGIN DEFINITION
-  * ======================== */
 
   var old = $.fn.checkbox
 
@@ -79,8 +75,6 @@
   }
 
 
- /* CHECKBOX NO CONFLICT
-  * ================== */
 
   $.fn.checkbox.noConflict = function () {
     $.fn.checkbox = old;
@@ -88,8 +82,6 @@
   }
 
 
- /* CHECKBOX DATA-API
-  * =============== */
 
   $(document).on('click.checkbox.data-api', '.checkbox', function (e) {
     var $checkbox = $(e.target);

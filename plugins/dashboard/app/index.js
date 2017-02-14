@@ -35,6 +35,7 @@ internals.startApp = function(){
     router.addRoutes(routes.state);
     router.addRoutes(routes.control);
     router.addRoutes(routes.meteo);
+    router.addRoutes(routes.analysis);
     router.addRoutes(routes.catchAll);
 
     $('div[data-id="initial-loading"]').remove();
