@@ -395,8 +395,8 @@ var ControlV = Mn.LayoutView.extend({
 
             //low: 0,
             //hight: 60,
+            /*
             axisY: {
-               
                 type: Chartist.FixedScaleAxis,
                 low: 0,
                 high: 60,
@@ -404,6 +404,7 @@ var ControlV = Mn.LayoutView.extend({
 
 
             },
+            */
 
 
             plugins: [
