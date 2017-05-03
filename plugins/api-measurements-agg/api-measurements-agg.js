@@ -66,10 +66,11 @@ exports.register = function (server, options, next){
                     clientName: Joi.string().min(1).required(),
                     start: Joi.date().default(internals.defaultDate),
                     end: Joi.date().default(internals.defaultDate),
-                    timeInterval: Joi.number().integer().valid([1,2,3,4,6,12,24]).default(1),
+                    timeInterval: Joi.number().integer().min(1).max(60).default(1),
+                    intervalType: Joi.string().valid(['minute', 'hour']).default('hour'),
                     format: Joi.string().valid(['json', 'csv']).default('json'),
                     stddev: Joi.boolean().default(false),
-                    type: Joi.string().default('t')
+                    type: Joi.string().default('["t"]')
                 }
             }
         },
@@ -86,8 +87,9 @@ exports.register = function (server, options, next){
                 start: request.query.start, 
                 end: request.query.end,
                 timeInterval: request.query.timeInterval,
+                intervalType: request.query.intervalType,
                 stddev: request.query.stddev,
-                type: request.query.type
+                type: JSON.parse(request.query.type)
             };
             console.log(queryOptions);
 

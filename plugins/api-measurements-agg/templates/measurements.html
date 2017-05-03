@@ -16,7 +16,7 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="container" style="width: 100%;">
         <div class="jumbotron" style="margin-top: 20px;">
             
             <p>
@@ -24,29 +24,20 @@
 
                 <div class="row">
                     <div class="col-sm-3">
-                        início<br>
-                        <input id="start" type="date"  />
+                        <div style="margin-bottom: 5px;">início</div>
+                        <input class="form-control" id="start" type="date" style="width: 100%;"  />
                     </div>
 
                     <div class="col-sm-3">
-                        fim<br>
-                        <input id="end" type="date" />
+                        <div style="margin-bottom: 5px;">fim</div>
+                        <input class="form-control" id="end" type="date" style="width: 100%;" />
                     </div>
 
-                    <div class="col-sm-3">
 
-                        formato
-                        <select id='format' class="form-control">
-                            <option value='csv'>csv (download)</option>
-                            <option value='json'>json</option>
-                        </select>
+                    <div class="col-sm-4">
 
-                    </div>
-
-                    <div class="col-sm-3">
-
-                        intervalo (média dos valores de x em x horas)
-                        <select id='timeInterval' class="form-control">
+                        <div style="margin-bottom: 5px;">duração do intervalo</div>
+                        <select id='time-interval' class="form-control">
                           <option  value='1'>1</option>
                           <option  value='2'>2</option>
                           <option  value='3'>3</option>
@@ -55,6 +46,59 @@
                           <option  value='12'>12</option>
                           <option  value='24'>24</option>
                         </select>
+                        <span id="time-interval-desc">(média dos valores de x em x horas)</span>
+
+                    </div>
+
+                </div>
+
+                <div class="row" style="margin-top: 25px;">
+                    
+                    <div class="col-sm-3">
+
+                        formato
+                        <div class="radio">
+                          <label>
+                            <input type="radio" name="output-format" value="csv" checked> csv
+                          </label>
+                        </div>
+                        <div class="radio">
+                          <label>
+                            <input type="radio" name="output-format" value="json"> json
+                          </label>
+                        </div>
+
+                    </div>
+
+                    <div class="col-sm-3">
+
+                        tipo de intervalo
+                        <div class="radio">
+                          <label>
+                            <input type="radio" name="interval-type" value="hour" checked> horas
+                          </label>
+                        </div>
+                        <div class="radio">
+                          <label>
+                            <input type="radio" name="interval-type" value="minute"> minutos
+                          </label>
+                        </div>
+
+                    </div>
+
+                    <div class="col-sm-4">
+
+                        tipo de leituras
+                        <div class="checkbox">
+                          <label>
+                            <input type="checkbox" name="measurement-type" value="t"> temperatura
+                          </label>
+                        </div>
+                        <div class="checkbox">
+                          <label>
+                            <input type="checkbox" name="measurement-type" value="h"> potencial hídrico
+                          </label>
+                        </div>
 
                     </div>
 
@@ -73,20 +117,59 @@
 
     
     <script>
+
+    $('[name="interval-type"]').on('change', function(){
+
+        var val = $('[name="interval-type"]:checked').val();
+        var options = [];
+
+        if (val === 'minute') {
+            $('#time-interval-desc').text('(média dos valores de x em x minutos)');
+            for (var i = 1;  i <= 60; i++) {
+                options.push(i);
+            }
+        }
+        else {
+            $('#time-interval-desc').text('(média dos valores de x em x horas)');
+            options = [1,2,3,4,6,12,24];
+        }
+
+        $('#time-interval').empty();
+        options.forEach(function(value){
+            $('#time-interval').append('<option value="' + value + '">' + value + '</option>');
+        });
+        
+    });
+
     $('#get-measurements').on('click', function(){
 
-        var start = $('#start').val()
-        var end = $('#end').val()
-        var timeInterval = $('#timeInterval').val()
-        var format = $('#format').val();
+        var start = $('#start').val();
+        var end = $('#end').val();
+        var timeInterval = $('#time-interval').val();
+        var intervalType = $('[name="interval-type"]:checked').val();
+        var format = $('[name="output-format"]:checked').val();
+        var measurementsType = [];
 
-        console.log(format)
-        console.log(timeInterval)
+        $('[name="measurement-type"]:checked').each(function(){
+
+            measurementsType.push($(this).val());
+        });
+
+
         console.log(start)
         console.log(end)
+        console.log(timeInterval)
+        console.log(intervalType)
+        console.log(format)
+        console.log(measurementsType)
 
-        if(!start || !end){
+        if (!start || !end){
             alert('escolha as datas')
+            return;
+        }
+
+        if (measurementsType.length === 0) {
+            alert('escolha o tipo de leitura (um ou mais)')
             return;
         }
 
@@ -94,7 +177,8 @@
         start = fecha.format(new Date(start), 'YYYY-MM-DD');
         end = fecha.format(new Date(end), 'YYYY-MM-DD');
 
-        var href = '/api/v1/measurements-agg?clientName=permalab&start=' + start + '&end=' + end + '&timeInterval=' + timeInterval + '&format=' + format;
+        var href = '/api/v1/measurements-agg?clientName=permalab&start=' + start + '&end=' + end + '&timeInterval=' + timeInterval + '&format=' + format + '&intervalType=' + intervalType + '&type=' + JSON.stringify(measurementsType);
+
         window.location.href = href;
     });
     </script
