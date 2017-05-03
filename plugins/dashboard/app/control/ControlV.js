@@ -167,7 +167,7 @@ var ControlV = Mn.LayoutView.extend({
                 end: end2,
                 timeInterval: timeInterval,
                 format: 'json',
-                type: 't'
+                type: JSON.stringify(['t'])
             }
         });
 
@@ -179,7 +179,7 @@ var ControlV = Mn.LayoutView.extend({
                 end: end,
                 timeInterval: 1,
                 format: 'json',
-                type: 'h'
+                type: JSON.stringify(['t'])
             }
         });
 

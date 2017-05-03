@@ -82,6 +82,7 @@ exports.register = function (server, options, next){
                 return reply(Boom.badRequest('invalid client code'));
             }
 
+console.log("request.query: \n", request.query)
             const queryOptions = {
                 clientCode: clientCode, 
                 start: request.query.start, 
